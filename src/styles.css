@@ -1,5 +1,19 @@
-@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 @import "tailwindcss";
+
+/* Material Icons, self-hosted so the app also works offline and never calls a
+   third-party CDN. Regenerate the woff2 from fonts.google.com if you need a
+   different icon set. */
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('./fonts/material-icons.woff2') format('woff2');
+}
+
+
+
+
 
 @theme {
   /* System font stack: resolves to San Francisco on Apple devices,
@@ -61,6 +75,10 @@
     --text-dim: #aeaeb2;       /* systemGray2 */
 
     --color-accent: #007aff;   /* systemBlue, light mode */
+
+    /* Carousel side cards are dimmed in dark mode; in light mode the same
+       brightness(0.5) would paint a grey band behind the front card. */
+    --carousel-depth-floor: 1;
   }
 }
 
@@ -97,7 +115,7 @@ body {
   animation: vibrate-expand 0.6s cubic-bezier(0.32, 0.72, 0, 1) forwards;
 }
 
-/* Custom Scrollbar for Menu Overlay */
+/* Custom scrollbar for overlays */
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
   height: 4px;
@@ -115,4 +133,94 @@ body {
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: var(--text-dim);
+}
+
+/* ---------------------------------------------------------------------------
+   Shared motion, safe areas and 3D helpers.
+
+   These live in the global sheet on purpose: Angular scopes component styles to
+   their own template, and these classes are used by several overlays and by the
+   carousel (whose perspective/transform-style must apply to its own cards).
+--------------------------------------------------------------------------- */
+
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.perspective-\[1200px\] {
+  perspective: 1200px;
+}
+
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.94); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes pulse-glow {
+  from { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.45s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+
+/* Soft accent halo behind the catalog. */
+.catalog-glow {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 150vw;
+  height: 150vh;
+  background: radial-gradient(circle at center, rgba(10, 132, 255, 0.05) 0%, transparent 60%);
+  z-index: 1;
+  pointer-events: none;
+  animation: pulse-glow 10s ease-in-out infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-slide-up,
+  .animate-slide-in-left,
+  .animate-scale-in,
+  .animate-vibrate-expand,
+  .catalog-glow {
+    animation: none;
+  }
 }
