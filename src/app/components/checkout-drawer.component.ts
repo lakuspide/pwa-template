@@ -1,15 +1,18 @@
 import { Component, inject, signal, output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
-import { CartService, CartItem } from '../services/cart.service';
-import { AuthService } from '../auth.service';
+import { CartService } from '../services/cart.service';
+import { CartItem } from '../models/catalog';
+import { AuthService } from '../services/auth.service';
 import { createParticleExplosion } from '../shared/particle-effect';
+import { IconComponent } from '../shared/icon.component';
+import { PricePipe } from '../shared/price.pipe';
+import { OrderService } from '../services/order.service';
 
 @Component({
   selector: 'app-checkout-drawer',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, MatIconModule],
+  imports: [CommonModule, IconComponent, PricePipe],
   template: `
     <div class="absolute inset-0 z-[2000] flex flex-col bg-[var(--bg-main)]/90 backdrop-blur-xl animate-fade-in pointer-events-auto"
          role="dialog"
@@ -92,7 +95,7 @@ import { createParticleExplosion } from '../shared/particle-effect';
           <div class="mt-8 pt-8 border-t border-[var(--border-main)] transition-opacity duration-300" [class.opacity-30]="isConfirming()">
             <div class="flex justify-between items-end mb-6">
               <span class="text-[var(--text-main)]/60 font-montserrat text-sm">Estimated Total</span>
-              <span class="text-[var(--text-main)] font-mono text-4xl font-bold">{{ cartService.totalPrice() | number:'1.2-2' }} {{ cartService.currencySymbol }}</span>
+              <span class="text-[var(--text-main)] font-mono text-4xl font-bold">{{ cartService.totalPrice() | appPrice }}</span>
             </div>
             
             <div class="flex flex-col gap-4">
@@ -108,6 +111,10 @@ import { createParticleExplosion } from '../shared/particle-effect';
                 }
               </button>
 
+              @if (orderError()) {
+                <p class="text-center text-xs text-red-400" role="alert">{{ orderError() }}</p>
+              }
+
               <button (click)="closeModal.emit()"
                       [disabled]="isConfirming()"
                       class="w-full py-4 rounded-full text-[var(--text-muted)] font-medium hover:text-[var(--text-main)] hover:bg-[var(--bg-hover)] transition-all text-base">
@@ -118,13 +125,20 @@ import { createParticleExplosion } from '../shared/particle-effect';
         } @else {
           <!-- Success State / Tracker -->
           <div class="absolute inset-0 flex flex-col animate-fade-in z-10 bg-[var(--bg-surface)] overflow-y-auto touch-pan-y custom-scrollbar p-8">
+            <button (click)="closeModal.emit()"
+                    aria-label="Close the order confirmation"
+                    class="self-end w-12 h-12 rounded-full bg-[var(--text-main)]/5 flex items-center justify-center text-[var(--text-main)] hover:bg-[var(--text-main)]/20 transition-colors">
+              <mat-icon>close</mat-icon>
+            </button>
             <!-- Header -->
             <div class="flex flex-col items-center mb-10">
               <div class="w-20 h-20 rounded-full bg-[var(--border-main)] flex items-center justify-center mb-6 shadow-lg">
                 <mat-icon class="text-[var(--text-sec)] text-4xl">check_circle</mat-icon>
               </div>
-              <h2 class="font-montserrat font-black text-3xl text-[var(--text-main)] mb-2 text-center">Process Complete</h2>
-              <p class="text-[var(--text-dim)] text-sm text-center">ID #{{ Math.floor(Math.random() * 1000) }}</p>
+              <h2 class="font-montserrat font-black text-3xl text-[var(--text-main)] mb-2 text-center">Order received</h2>
+              @if (orderId()) {
+                <p class="text-[var(--text-dim)] text-sm text-center">Order #{{ orderId() }}</p>
+              }
             </div>
 
             <!-- Progress -->
@@ -139,41 +153,25 @@ import { createParticleExplosion } from '../shared/particle-effect';
                   <div class="w-10 h-10 rounded-full bg-[var(--text-muted)] flex items-center justify-center text-[var(--bg-main)]">
                     <mat-icon class="text-sm">check</mat-icon>
                   </div>
-                  <span class="text-[var(--text-muted)] text-[10px] font-bold">Step 1</span>
+                  <span class="text-[var(--text-muted)] text-[10px] font-bold">Confirmed</span>
                 </div>
                 <div class="relative z-10 flex flex-col items-center gap-2">
                   <div class="w-10 h-10 rounded-full bg-[var(--bg-hover)] border-2 border-[var(--border-light)] flex items-center justify-center text-[var(--text-muted)] animate-pulse">
                     <mat-icon class="text-sm">sync</mat-icon>
                   </div>
-                  <span class="text-[var(--text-main)] text-[10px] font-bold">Step 2</span>
+                  <span class="text-[var(--text-main)] text-[10px] font-bold">Preparing</span>
                 </div>
                 <div class="relative z-10 flex flex-col items-center gap-2 opacity-30">
                   <div class="w-10 h-10 rounded-full bg-[var(--bg-hover)] border-2 border-[var(--border-main)] flex items-center justify-center text-[var(--text-dim)]">
                     <mat-icon class="text-sm">flag</mat-icon>
                   </div>
-                  <span class="text-[var(--text-dim)] text-[10px] font-bold">Step 3</span>
+                  <span class="text-[var(--text-dim)] text-[10px] font-bold">Ready</span>
                 </div>
               </div>
               <p class="text-[var(--text-muted)] text-center text-sm italic">"Your request is being processed."</p>
             </div>
 
-            <!-- Share -->
-            <div class="mb-10">
-              <h3 class="text-[var(--text-dim)] text-[10px] font-bold mb-4 text-center">Share</h3>
-              <div class="flex justify-center gap-4">
-                <button class="w-14 h-14 rounded-2xl bg-[var(--text-main)]/5 border border-[var(--border-main)] flex items-center justify-center text-[var(--text-main)] hover:bg-[var(--text-main)]/10 transition-all hover:-translate-y-1">
-                  <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-                </button>
-                <button class="w-14 h-14 rounded-2xl bg-[var(--text-main)]/5 border border-[var(--border-main)] flex items-center justify-center text-[var(--text-main)] hover:bg-[var(--text-main)]/10 transition-all hover:-translate-y-1">
-                  <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.417-.003 6.557-5.338 11.892-11.893 11.892-1.997-.001-3.951-.5-5.688-1.448l-6.305 1.65zm6.59-4.819c1.557.925 3.567 1.414 5.35 1.415 5.436 0 9.859-4.423 9.862-9.859.002-2.633-1.023-5.11-2.884-6.971-1.861-1.862-4.337-2.889-6.971-2.89-5.437 0-9.86 4.423-9.863 9.86-.001 1.93.55 3.804 1.59 5.435l-1.041 3.805 3.909-1.025zm11.346-7.42c-.301-.151-1.781-.878-2.057-.978-.275-.1-.476-.151-.676.151-.2.301-.777.978-.951 1.178-.175.2-.351.226-.652.075-.301-.151-1.27-.467-2.42-1.493-.894-.797-1.496-1.782-1.672-2.083-.176-.301-.019-.463.132-.613.135-.134.301-.351.451-.526.15-.175.201-.301.301-.501.1-.2.05-.376-.025-.526-.075-.151-.676-1.63-.926-2.232-.244-.594-.493-.513-.676-.522-.175-.009-.376-.01-.576-.01-.2 0-.527.075-.802.376-.275.301-1.053 1.028-1.053 2.507 0 1.479 1.078 2.908 1.228 3.108.15.2 2.122 3.24 5.139 4.541.718.31 1.279.495 1.716.635.722.23 1.378.197 1.897.12.579-.085 1.781-.728 2.031-1.43.25-.702.25-1.303.175-1.43-.075-.127-.275-.201-.576-.352z"/></svg>
-                </button>
-                <button class="w-14 h-14 rounded-2xl bg-[var(--text-main)]/5 border border-[var(--border-main)] flex items-center justify-center text-[var(--text-main)] hover:bg-[var(--text-main)]/10 transition-all hover:-translate-y-1">
-                  <mat-icon>share</mat-icon>
-                </button>
-              </div>
-            </div>
-
-            <!-- Reviews -->
+            <!-- Reviews (static placeholders, replace with real data) -->
             <div class="mb-10">
               <div class="flex items-center justify-between mb-6">
                 <h3 class="text-[var(--text-main)] font-bold text-sm">Reviews</h3>
@@ -230,8 +228,8 @@ import { createParticleExplosion } from '../shared/particle-effect';
             } @else {
               <div class="bg-[var(--bg-hover)]/50 p-6 rounded-[2rem] border border-[var(--border-main)] text-center mb-10">
                 <mat-icon class="text-[var(--text-muted)] text-3xl mb-2">check_circle</mat-icon>
-                <p class="text-[var(--text-main)] font-bold">Action Logged</p>
-                <p class="text-[var(--text-dim)] text-xs mt-1">This action has been saved to your profile.</p>
+                <p class="text-[var(--text-main)] font-bold">Order saved to your account</p>
+                <p class="text-[var(--text-dim)] text-xs mt-1">You can find it in your order history from the sidebar.</p>
               </div>
             }
 
@@ -247,6 +245,7 @@ import { createParticleExplosion } from '../shared/particle-effect';
 export class CheckoutDrawerComponent {
   cartService = inject(CartService);
   authService = inject(AuthService);
+  private orderService = inject(OrderService);
   
   closeModal = output<void>();
   requestLogin = output<void>();
@@ -255,8 +254,8 @@ export class CheckoutDrawerComponent {
   isConfirming = signal(false);
   orderSuccess = signal(false);
   itemToRemove = signal<CartItem | null>(null);
-  
-  Math = Math;
+  orderId = signal<string | null>(null);
+  orderError = signal<string | null>(null);
 
   decreaseCartQuantity(item: CartItem) {
     if (item.quantity > 1) {
@@ -280,13 +279,38 @@ export class CheckoutDrawerComponent {
 
   confirmOrder(event: MouseEvent) {
     event.stopPropagation();
+    void this.submitOrder(event);
+  }
+
+  private async submitOrder(event: MouseEvent): Promise<void> {
+    if (this.isConfirming() || this.cartService.items().length === 0) {
+      return;
+    }
+
     createParticleExplosion(event, ['var(--color-accent)', '#3b82f6', '#ffffff'], 'rgba(255, 255, 255, 0.4)');
     this.isConfirming.set(true);
+    this.orderError.set(null);
 
-    setTimeout(() => {
-      this.isConfirming.set(false);
-      this.orderSuccess.set(true);
-      this.orderConfirmed.emit();
-    }, 2000);
+    const user = this.authService.currentUser();
+    const result = await this.orderService.submitOrder({
+      customer: {
+        name: user?.name ?? 'Guest',
+        email: user?.email ?? 'guest@example.com',
+      },
+      lines: this.cartService.orderLines(),
+      total: this.cartService.totalPrice(),
+      notes: undefined,
+    });
+
+    this.isConfirming.set(false);
+
+    if (!result.ok) {
+      this.orderError.set(result.error ?? 'Something went wrong. Please try again.');
+      return;
+    }
+
+    this.orderId.set(result.orderId ?? null);
+    this.orderSuccess.set(true);
+    this.orderConfirmed.emit();
   }
 }

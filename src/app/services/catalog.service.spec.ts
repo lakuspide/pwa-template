@@ -1,23 +1,23 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { MenuService } from './menu.service';
+import { CatalogService } from './catalog.service';
 
-describe('MenuService', () => {
-  let service: MenuService;
+describe('CatalogService', () => {
+  let service: CatalogService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [provideHttpClient(), provideHttpClientTesting()],
     });
-    service = TestBed.inject(MenuService);
+    service = TestBed.inject(CatalogService);
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should start populated with the bundled mock catalog (useMockData is true by default)', () => {
+  it('should start populated with the bundled placeholder catalog (useMockData is true by default)', () => {
     expect(service.categories().length).toBe(4);
   });
 
@@ -30,18 +30,18 @@ describe('MenuService', () => {
     }
   });
 
-  it('every item should have the fields CartService/UI rely on', () => {
+  it('every item should have the fields the cart and the UI rely on', () => {
     const allItems = service.categories().flatMap(c => c.items);
     for (const item of allItems) {
       expect(item.id).toBeTruthy();
       expect(item.name).toBeTruthy();
-      expect(item.price).toBeTruthy();
+      expect(typeof item.price).toBe('number');
       expect(item.image).toBeTruthy();
     }
   });
 
-  it('fetchCategories() in mock mode resolves without touching the network and keeps the mock data', async () => {
-    await service.fetchCategories();
+  it('load() in mock mode resolves without touching the network and keeps the placeholder data', async () => {
+    await service.load();
     expect(service.categories().length).toBe(4);
     expect(service.isLoading()).toBe(false);
     expect(service.error()).toBeNull();

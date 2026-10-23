@@ -16,7 +16,7 @@ import { animate } from 'motion';
 export function createParticleExplosion(
   event: MouseEvent,
   sparkColors: string[] = ['#9ca3af', '#d1d5db', '#ffffff'],
-  smokeColor: string = 'rgba(255, 255, 255, 0.3)'
+  smokeColor = 'rgba(255, 255, 255, 0.3)'
 ): void {
   const button = event.currentTarget as HTMLElement;
   const rect = button.getBoundingClientRect();

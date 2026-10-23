@@ -1,15 +1,16 @@
 import { TestBed } from '@angular/core/testing';
-import { CartService, MenuItem } from './cart.service';
+import { CartService } from './cart.service';
+import { CatalogItem } from '../models/catalog';
 
 describe('CartService', () => {
   let service: CartService;
 
-  const item = (overrides: Partial<MenuItem> = {}): MenuItem => ({
+  const item = (overrides: Partial<CatalogItem> = {}): CatalogItem => ({
     id: '1',
     name: 'Test Item',
-    price: '24.00 €',
+    price: 24,
     description: 'A test item',
-    image: 'https://example.com/img.jpg',
+    image: 'images/catalog-1.svg',
     ...overrides,
   });
 
@@ -79,42 +80,31 @@ describe('CartService', () => {
     expect(service.totalPrice()).toBe(0);
   });
 
-  describe('totalPrice parsing', () => {
-    it('parses "24.00 €" (dot as decimal separator)', () => {
-      service.addItem(item({ id: 'A', price: '24.00 €' }), 1);
-      expect(service.totalPrice()).toBeCloseTo(24, 2);
-    });
-
-    it('parses "24,00" (comma as decimal separator)', () => {
-      service.addItem(item({ id: 'A', price: '24,00' }), 1);
-      expect(service.totalPrice()).toBeCloseTo(24, 2);
-    });
-
-    it('parses "$ 1.234,56" (dot as thousands, comma as decimal)', () => {
-      service.addItem(item({ id: 'A', price: '$ 1.234,56' }), 1);
-      expect(service.totalPrice()).toBeCloseTo(1234.56, 2);
-    });
-
-    it('parses "$1,234.56" (comma as thousands, dot as decimal)', () => {
-      service.addItem(item({ id: 'A', price: '$1,234.56' }), 1);
-      expect(service.totalPrice()).toBeCloseTo(1234.56, 2);
-    });
-
+  describe('totals', () => {
     it('multiplies unit price by quantity', () => {
-      service.addItem(item({ id: 'A', price: '10.00' }), 3);
+      service.addItem(item({ id: 'A', price: 10 }), 3);
       expect(service.totalPrice()).toBeCloseTo(30, 2);
     });
 
     it('sums across multiple distinct items', () => {
-      service.addItem(item({ id: 'A', price: '10.00' }), 1);
-      service.addItem(item({ id: 'B', price: '5.00' }), 2);
+      service.addItem(item({ id: 'A', price: 10 }), 1);
+      service.addItem(item({ id: 'B', price: 5 }), 2);
       expect(service.totalPrice()).toBeCloseTo(20, 2);
     });
 
-    it('treats an unparseable price as 0 rather than throwing', () => {
-      service.addItem(item({ id: 'A', price: '{Price Label}' }), 1);
-      expect(() => service.totalPrice()).not.toThrow();
-      expect(service.totalPrice()).toBe(0);
+    it('keeps decimal precision for prices like 12.50', () => {
+      service.addItem(item({ id: 'A', price: 12.5 }), 2);
+      expect(service.totalPrice()).toBeCloseTo(25, 2);
+    });
+  });
+
+  describe('orderLines', () => {
+    it('maps the cart to the shape the order endpoint expects', () => {
+      service.addItem(item({ id: 'A', name: 'First', price: 10 }), 2);
+
+      expect(service.orderLines()).toEqual([
+        { itemId: 'A', name: 'First', unitPrice: 10, quantity: 2 },
+      ]);
     });
   });
 });

@@ -1,13 +1,13 @@
 import { Component, output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
-import { Role } from '../auth.service';
+import { Role } from '../services/auth.service';
+import { IconComponent } from '../shared/icon.component';
 
 @Component({
   selector: 'app-login-modal',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, MatIconModule],
+  imports: [CommonModule, IconComponent],
   template: `
     <div class="absolute inset-0 z-[3000] flex items-center justify-center p-4">
       <div class="absolute inset-0 bg-black/80 backdrop-blur-xl" 
@@ -22,7 +22,7 @@ import { Role } from '../auth.service';
            aria-modal="true"
            aria-label="Login">
         <div class="flex justify-between items-center mb-6">
-          <h2 class="font-montserrat font-black text-2xl text-[var(--text-main)]">Login</h2>
+          <h2 class="font-montserrat font-black text-2xl text-[var(--text-main)]">Demo sign-in</h2>
           <button (click)="closeModal.emit()" class="w-10 h-10 rounded-full bg-[var(--bg-hover)] flex items-center justify-center text-[var(--text-muted)] hover:bg-[var(--border-main)] hover:text-[var(--text-main)] transition-colors">
             <mat-icon>close</mat-icon>
           </button>

@@ -1,46 +1,50 @@
-import { Component, output, ChangeDetectionStrategy, inject } from '@angular/core';
-import { CommonModule, DOCUMENT } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
+import { ChangeDetectionStrategy, Component, inject, output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { IconComponent } from '../shared/icon.component';
+import { APP_COPY } from '../shared/copy';
+import { ThemeService } from '../services/theme.service';
 
+/** Fixed header: navigation trigger, home button and theme switch. */
 @Component({
   selector: 'app-top-header',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, MatIconModule],
+  imports: [CommonModule, IconComponent],
   template: `
     <div class="w-full max-w-md mx-auto px-4 mt-2 mb-2 z-[200] relative pointer-events-auto">
       <div class="flex items-center gap-4">
-        
-        <!-- Hamburger Menu (Left) -->
-        <button (click)="openSidebar.emit()" class="w-[54px] h-[54px] shrink-0 rounded-2xl bg-[var(--bg-surface)]/80 border border-[var(--border-main)] flex flex-col items-center justify-center gap-[5px] hover:bg-[var(--bg-hover)] transition-colors backdrop-blur-md shadow-lg pointer-events-auto">
+
+        <!-- Navigation (left) -->
+        <button (click)="openSidebar.emit()" aria-label="Open navigation"
+                class="w-[54px] h-[54px] shrink-0 rounded-2xl bg-[var(--bg-surface)]/80 border border-[var(--border-main)] flex flex-col items-center justify-center gap-[5px] hover:bg-[var(--bg-hover)] transition-colors backdrop-blur-md shadow-lg pointer-events-auto">
           <div class="w-6 h-[2px] bg-[var(--text-muted)] rounded-full"></div>
           <div class="w-6 h-[2px] bg-[var(--text-muted)] rounded-full"></div>
           <div class="w-6 h-[2px] bg-[var(--text-muted)] rounded-full"></div>
         </button>
 
-        <!-- Logo Box (Middle) -->
-        <button (click)="resetView.emit()" class="flex-1 h-[54px] bg-[var(--bg-surface)]/80 border border-[var(--border-main)] rounded-2xl px-6 backdrop-blur-md hover:bg-[var(--bg-hover)] transition-colors flex items-center justify-center shadow-lg pointer-events-auto group overflow-hidden relative">
+        <!-- Brand (middle) -->
+        <button (click)="resetView.emit()" aria-label="Back to the catalog home"
+                class="flex-1 h-[54px] bg-[var(--bg-surface)]/80 border border-[var(--border-main)] rounded-2xl px-6 backdrop-blur-md hover:bg-[var(--bg-hover)] transition-colors flex items-center justify-center shadow-lg pointer-events-auto group overflow-hidden relative">
           <div class="absolute inset-0 bg-gradient-to-r from-transparent to-[#ffffff]/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-          <span class="font-montserrat font-semibold tracking-tight text-[var(--text-main)] text-sm drop-shadow-md">App Skeleton</span>
+          <span class="font-montserrat font-semibold tracking-tight text-[var(--text-main)] text-sm drop-shadow-md">{{ copy.appName }}</span>
         </button>
 
-        <!-- Theme Toggle (Right) -->
-        <button (click)="toggleTheme()" class="w-[54px] h-[54px] shrink-0 rounded-2xl bg-[var(--bg-surface)]/80 border border-[var(--border-main)] flex flex-col items-center justify-center hover:bg-[var(--bg-hover)] transition-colors backdrop-blur-md shadow-lg pointer-events-auto group">
-          <mat-icon class="text-[var(--text-muted)] group-hover:text-[var(--text-main)] transition-colors">contrast</mat-icon>
+        <!-- Theme toggle (right) -->
+        <button (click)="theme.toggle()" aria-label="Toggle light and dark theme"
+                class="w-[54px] h-[54px] shrink-0 rounded-2xl bg-[var(--bg-surface)]/80 border border-[var(--border-main)] flex flex-col items-center justify-center hover:bg-[var(--bg-hover)] transition-colors backdrop-blur-md shadow-lg pointer-events-auto group">
+          <mat-icon class="text-[var(--text-muted)] group-hover:text-[var(--text-main)] transition-colors">
+            {{ theme.isLight() ? 'dark_mode' : 'light_mode' }}
+          </mat-icon>
         </button>
 
       </div>
     </div>
-  `
+  `,
 })
 export class TopHeaderComponent {
+  readonly copy = APP_COPY;
+  readonly theme = inject(ThemeService);
+
   resetView = output<void>();
   openSidebar = output<void>();
-  
-  private document = inject(DOCUMENT);
-  
-  toggleTheme() {
-    this.document.body.classList.toggle('light-theme');
-  }
 }
-

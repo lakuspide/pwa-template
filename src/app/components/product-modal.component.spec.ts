@@ -1,17 +1,18 @@
 import { TestBed } from '@angular/core/testing';
 import { ProductModalComponent } from './product-modal.component';
-import { CartService, MenuItem } from '../services/cart.service';
+import { CartService } from '../services/cart.service';
+import { CatalogItem } from '../models/catalog';
 
 describe('ProductModalComponent', () => {
   let component: ProductModalComponent;
   let cartService: CartService;
 
-  const testProduct: MenuItem = {
+  const testProduct: CatalogItem = {
     id: 'P1',
     name: 'Test Product',
-    price: '15.00 €',
+    price: 15,
     description: 'A product used in tests',
-    image: 'https://example.com/img.jpg',
+    image: 'images/catalog-1.svg',
   };
 
   beforeEach(() => {
@@ -49,7 +50,7 @@ describe('ProductModalComponent', () => {
   it('should add the selected product and quantity to the cart on addToOrder', () => {
     component.increaseQuantity(); // quantity = 2
     const fakeEvent = {
-      stopPropagation: () => {},
+      stopPropagation: vi.fn(),
       currentTarget: document.createElement('button'),
     } as unknown as MouseEvent;
 
@@ -67,7 +68,7 @@ describe('ProductModalComponent', () => {
     component.closeModal.subscribe(closeSpy);
 
     const fakeEvent = {
-      stopPropagation: () => {},
+      stopPropagation: vi.fn(),
       currentTarget: document.createElement('button'),
     } as unknown as MouseEvent;
     component.addToOrder(fakeEvent);
@@ -82,7 +83,7 @@ describe('ProductModalComponent', () => {
     fixture.detectChanges();
 
     const fakeEvent = {
-      stopPropagation: () => {},
+      stopPropagation: vi.fn(),
       currentTarget: document.createElement('button'),
     } as unknown as MouseEvent;
 

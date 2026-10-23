@@ -1,9 +1,10 @@
 import { Component, signal, computed, inject, ViewChild, HostListener, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
-import { CartService, MenuItem } from './services/cart.service';
-import { MenuService, Category } from './services/menu.service';
-import { AuthService, Role } from './auth.service';
+import { CartService } from './services/cart.service';
+import { CatalogItem, CatalogCategory } from './models/catalog';
+import { PanelId } from './models/panel';
+import { CatalogService } from './services/catalog.service';
+import { AuthService, Role } from './services/auth.service';
 import { ProductModalComponent } from './components/product-modal.component';
 import { CheckoutDrawerComponent } from './components/checkout-drawer.component';
 import { SidebarMenuComponent } from './components/sidebar-menu.component';
@@ -13,15 +14,16 @@ import { TermsSectionComponent } from './components/terms-section.component';
 import { HistorySectionComponent } from './components/history-section.component';
 import { TopHeaderComponent } from './components/top-header.component';
 import { HeroSectionComponent } from './components/hero-section.component';
-import { ReservationSuccessModalComponent } from './components/reservation-success-modal.component';
 import { Carousel3dComponent, DisplayCard } from './components/carousel-3d.component';
 import { PwaUpdateService } from './services/pwa-update.service';
+import { IconComponent } from './shared/icon.component';
+import { formatPrice } from './shared/price';
 
 @Component({
   selector: 'app-carousel-cylinder',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, MatIconModule, ProductModalComponent, CheckoutDrawerComponent, SidebarMenuComponent, LoginModalComponent, LocationsSectionComponent, TermsSectionComponent, HistorySectionComponent, TopHeaderComponent, HeroSectionComponent, ReservationSuccessModalComponent, Carousel3dComponent],
+  imports: [CommonModule, IconComponent, ProductModalComponent, CheckoutDrawerComponent, SidebarMenuComponent, LoginModalComponent, LocationsSectionComponent, TermsSectionComponent, HistorySectionComponent, TopHeaderComponent, HeroSectionComponent, Carousel3dComponent],
   template: `
     <div class="w-full min-h-screen bg-[var(--bg-main)] text-[var(--text-sec)] font-sans overflow-x-hidden relative">
       
@@ -42,7 +44,9 @@ import { PwaUpdateService } from './services/pwa-update.service';
       <!-- CATALOG SECTION (Compact Layout) -->
       <section class="absolute inset-0 w-full h-[100dvh] z-[40] transition-opacity duration-1000 flex flex-col"
                [class.opacity-0]="appMode() !== 'catalog'"
-               [class.pointer-events-none]="appMode() !== 'catalog'">
+               [class.pointer-events-none]="appMode() !== 'catalog'"
+               [attr.inert]="appMode() !== 'catalog' ? '' : null"
+               [attr.aria-hidden]="appMode() !== 'catalog' ? 'true' : null">
         
         <!-- Sensory Glow -->
         <div class="catalog-glow absolute inset-0 pointer-events-none z-0"></div>
@@ -64,24 +68,22 @@ import { PwaUpdateService } from './services/pwa-update.service';
                [class.min-h-full]="activeBox() === null"
                [class.h-full]="activeBox() !== null">
           
-          <!-- Oferta Especial Box -->
-          @if (activeBox() === null || activeBox() === 'historia') {
+          <!-- About / special offer teaser -->
+          @if (activeBox() === null || activeBox() === 'about') {
             <app-history-section
               [activeBox]="activeBox()"
               (setActiveBox)="activeBox.set($event)">
             </app-history-section>
           }
 
-          <!-- CAROUSEL SECTION -->
-          @if (activeBox() === null || activeBox() === 'menu') {
-            <div id="system-section" class="relative w-full flex-1 flex flex-col items-center justify-center pointer-events-auto mb-6 touch-pan-y transition-all duration-500"
-                 (click)="activeBox() === null ? activeBox.set('menu') : null"
-                 (keydown.enter)="activeBox() === null ? activeBox.set('menu') : null"
-                 tabindex="0"
-                 role="button">
+          <!-- CATALOG SECTION -->
+          @if (activeBox() === null || activeBox() === 'catalog') {
+            <!-- The carousel cards are the controls; selecting one also leaves
+                 the compact home teaser layout for the full catalog view. -->
+            <div id="system-section" class="relative w-full flex-1 flex flex-col items-center justify-center pointer-events-auto mb-6 touch-pan-y transition-all duration-500">
 
               <!-- Carousel Controls (Back Button) -->
-              @if (activeBox() === 'menu') {
+              @if (activeBox() === 'catalog') {
                 <div class="absolute bottom-10 left-1/2 -translate-x-1/2 z-[300] pointer-events-auto transition-all duration-500"
                      [class.opacity-0]="viewState() === 'categories'"
                      [class.pointer-events-none]="viewState() === 'categories'">
@@ -94,7 +96,7 @@ import { PwaUpdateService } from './services/pwa-update.service';
                 </div>
               }
 
-      <!-- Category Title (when in items view) -->
+      <!-- CatalogCategory Title (when in items view) -->
       <div class="absolute top-24 left-0 w-full flex flex-col items-center z-[200] pointer-events-none transition-all duration-500"
            [ngClass]="{'opacity-0 -translate-y-4': viewState() === 'categories'}">
         <mat-icon class="text-[var(--text-muted)] text-3xl mb-2 drop-shadow-md">{{ activeCategory()?.icon }}</mat-icon>
@@ -126,13 +128,17 @@ import { PwaUpdateService } from './services/pwa-update.service';
       <div [class.hidden]="viewState() !== 'items'" class="w-full h-[60vh] flex overflow-x-auto snap-x snap-mandatory custom-scrollbar transition-opacity duration-300"
            [class.opacity-0]="isTransitioning()">
         @for (page of paginatedItems(); track $index) {
-          <div class="min-w-full h-full flex-shrink-0 snap-center px-2 py-4 overflow-y-auto">
+          <div class="min-w-full h-full flex-shrink-0 snap-center px-2 pt-28 pb-4 overflow-y-auto">
             <div class="grid grid-cols-2 gap-2 content-start pb-24">
               @for (item of page; track item.id) {
                 <div class="bg-[var(--text-main)]/5 border border-[var(--border-main)] rounded-xl p-2 flex flex-col items-center cursor-pointer hover:bg-[var(--text-main)]/10 transition-colors active:scale-95 min-w-0"
-                     (click)="onCardSelect(item)">
+                     role="button"
+                     tabindex="0"
+                     [attr.aria-label]="'Open ' + item.title"
+                     (click)="onCardSelect(item)"
+                     (keydown.enter)="onCardSelect(item)">
                   <div class="w-full aspect-square bg-[var(--bg-surface)] rounded-lg mb-2 overflow-hidden relative border border-[var(--border-main)]">
-                     <img [src]="item.image" alt="Placeholder" class="absolute inset-0 w-full h-full object-cover opacity-50 grayscale">
+                     <img [src]="item.image" [alt]="item.title" class="absolute inset-0 w-full h-full object-cover opacity-50 grayscale">
                   </div>
                   <span class="text-xs font-bold text-center text-[var(--text-sec)] line-clamp-2 leading-tight w-full">{{item.title}}</span>
                   <span class="text-[10px] text-[var(--text-muted)] mt-1">{{item.price}}</span>
@@ -143,17 +149,19 @@ import { PwaUpdateService } from './services/pwa-update.service';
         }
       </div>
 
-      <!-- Footer Hint -->
-      <div class="absolute bottom-8 left-0 w-full flex flex-col items-center z-[200] pointer-events-none transition-opacity duration-500"
-           [class.opacity-0]="isProductModalOpen() || viewState() === 'items'">
-        <p class="text-[var(--text-dim)] text-[9px] font-montserrat flex items-center gap-3 mb-2 drop-shadow-md">
-          <mat-icon class="text-[14px] !w-3.5 !h-3.5 animate-bounce">
-            touch_app
-          </mat-icon>
-          Tap to view items
-        </p>
-        <div class="w-px h-8 bg-gradient-to-b from-[var(--text-dim)]/60 to-transparent"></div>
-      </div>
+      <!-- Footer Hint (in normal flow so it never sits on top of a card) -->
+      @if (viewState() === 'categories') {
+        <div class="relative w-full flex-none flex flex-col items-center z-[200] pointer-events-none pb-3 transition-opacity duration-500"
+             [class.opacity-0]="isProductModalOpen()">
+          <p class="text-[var(--text-dim)] text-[9px] font-montserrat flex items-center gap-3 mb-1 drop-shadow-md">
+            <mat-icon class="text-[14px] !w-3.5 !h-3.5 animate-bounce">
+              touch_app
+            </mat-icon>
+            Tap to view items
+          </p>
+          <div class="w-px h-5 bg-gradient-to-b from-[var(--text-dim)]/60 to-transparent"></div>
+        </div>
+      }
     </div> <!-- Closes system-section -->
 
       <!-- Product Detail Modal -->
@@ -169,17 +177,19 @@ import { PwaUpdateService } from './services/pwa-update.service';
 
       <!-- Toast Notification -->
       @if (showToast()) {
-        <div class="absolute top-12 left-1/2 -translate-x-1/2 z-[2000] bg-[var(--border-main)] text-[var(--text-main)] px-6 py-3 rounded-full font-medium shadow-lg flex items-center gap-3 animate-fade-in pointer-events-none">
+        <div class="absolute top-12 left-1/2 -translate-x-1/2 z-[2000] bg-[var(--border-main)] text-[var(--text-main)] px-6 py-3 rounded-full font-medium shadow-lg flex items-center gap-3 animate-fade-in pointer-events-none"
+             role="status" aria-live="polite">
           <mat-icon>check_circle</mat-icon>
-          <span>Action Completed!</span>
+          <span>Added to cart</span>
         </div>
       }
 
       <!-- Floating Action Buttons -->
       <div class="absolute bottom-8 right-8 z-[500] flex flex-col gap-4">
         <!-- Cart Indicator -->
-        @if (cartService.totalItems() > 0 && activeBox() === 'menu') {
+        @if (cartService.totalItems() > 0 && (activeBox() === null || activeBox() === 'catalog')) {
           <button (click)="showCheckout.set(true)"
+                  aria-label="Open cart"
                   class="relative w-14 h-14 rounded-full bg-[var(--bg-hover)] border border-[var(--border-main)] flex items-center justify-center text-[var(--text-main)] hover:bg-[var(--border-main)] transition-all shadow-xl pointer-events-auto group">
             <mat-icon class="text-[var(--text-muted)] group-hover:scale-110 transition-transform">shopping_cart</mat-icon>
             <span class="absolute -top-2 -right-2 bg-[var(--text-dim)] text-[var(--text-main)] text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shadow-lg border-2 border-[var(--bg-main)]">
@@ -200,13 +210,14 @@ import { PwaUpdateService } from './services/pwa-update.service';
         }
       }
 
-      <!-- Sidebar Menu -->
+      <!-- Sidebar navigation -->
       @defer (when showSidebar()) {
         @if (showSidebar()) {
           <app-sidebar-menu
             (closeSidebar)="showSidebar.set(false)"
             (logout)="logout()"
-            (openLoginModal)="openLoginModal()">
+            (openLoginModal)="openLoginModal()"
+            (openPanel)="openPanel($event)">
           </app-sidebar-menu>
         }
       }
@@ -221,27 +232,32 @@ import { PwaUpdateService } from './services/pwa-update.service';
         }
       }
 
-      <!-- RESERVATION SUCCESS MODAL -->
-      @defer (when reservationSuccess()) {
-        @if (reservationSuccess()) {
-          <app-reservation-success-modal
-            (closeModal)="reservationSuccess.set(false)">
-          </app-reservation-success-modal>
-        }
+
+      } <!-- Closes activeBox() === null || activeBox() === 'catalog' -->
+
+      <!-- Service worker update prompt (only when a new build is waiting) -->
+      @if (pwaUpdateService.updateReady()) {
+        <div class="absolute top-12 left-1/2 -translate-x-1/2 z-[2100] bg-[var(--bg-surface)] border border-[var(--border-main)] text-[var(--text-main)] pl-4 pr-2 py-2 rounded-full shadow-xl flex items-center gap-3 animate-fade-in pointer-events-auto">
+          <mat-icon class="text-[18px] !w-5 !h-5 text-[var(--color-accent)]">system_update</mat-icon>
+          <span class="text-xs font-medium">New version available</span>
+          <button (click)="pwaUpdateService.applyUpdate()"
+                  [disabled]="pwaUpdateService.applying()"
+                  class="px-4 py-1.5 rounded-full bg-[var(--text-main)] text-[var(--bg-main)] text-xs font-bold disabled:opacity-50">
+            Reload
+          </button>
+        </div>
       }
 
-      } <!-- Closes activeBox() === null || activeBox() === 'menu' -->
-
-      <!-- Locations Section -->
-      @if (activeBox() === null || activeBox() === 'alpha' || activeBox() === 'beta' || activeBox() === 'gamma' || activeBox() === 'delta') {
+      <!-- Branch / store panels -->
+      @if (activeBox() === null || activeBox() === 'location-1' || activeBox() === 'location-2' || activeBox() === 'location-3' || activeBox() === 'location-4') {
         <app-locations-section
           [activeBox]="activeBox()"
           (setActiveBox)="activeBox.set($event)">
         </app-locations-section>
       }
 
-      <!-- Terms and Conditions Hook -->
-      @if (activeBox() === null || activeBox() === 'terminos') {
+      <!-- Legal terms panel -->
+      @if (activeBox() === null || activeBox() === 'terms') {
         <app-terms-section
           [activeBox]="activeBox()"
           (setActiveBox)="activeBox.set($event)">
@@ -253,57 +269,12 @@ import { PwaUpdateService } from './services/pwa-update.service';
 
   </section> <!-- Closes catalog section -->
 </div> <!-- Closes main container -->
-  `,
-  styles: [`
-    .perspective-\\[1200px\\] { perspective: 1200px; }
-    .transform-style-3d { transform-style: preserve-3d; }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    @keyframes slideInLeft {
-      from { transform: translateX(-100%); }
-      to { transform: translateX(0); }
-    }
-    @keyframes slideUp {
-      from { transform: translateY(20px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-    .animate-fade-in {
-      animation: fadeIn 0.3s ease-out forwards;
-    }
-    .animate-slide-in-left {
-      animation: slideInLeft 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    }
-    .animate-slide-up {
-      animation: slideUp 0.45s cubic-bezier(0.32, 0.72, 0, 1) forwards;
-    }
-
-    /* Sensory Background Glow */
-    .catalog-glow {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 150vw;
-      height: 150vh;
-      background: radial-gradient(circle at center, rgba(10, 132, 255, 0.05) 0%, transparent 60%);
-      z-index: 1;
-      pointer-events: none;
-      animation: pulse-glow 10s ease-in-out infinite alternate;
-    }
-
-    @keyframes pulse-glow {
-      from { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
-      to { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
-    }
-  `]
+  `
 })
 export class CarouselCylinderComponent {
   @ViewChild('carousel3d') carousel3d!: Carousel3dComponent;
 
-  menuService = inject(MenuService);
+  catalogService = inject(CatalogService);
   pwaUpdateService = inject(PwaUpdateService);
 
   heroTouchStartY = 0;
@@ -318,19 +289,18 @@ export class CarouselCylinderComponent {
   }
 
   appMode = signal<'intro' | 'catalog'>('intro');
-  activeBox = signal<'historia' | 'menu' | 'alpha' | 'beta' | 'gamma' | 'delta' | 'terminos' | null>(null);
+  activeBox = signal<PanelId>(null);
 
   enterCatalog() {
     this.appMode.set('catalog');
   }
 
   viewState = signal<'categories' | 'items'>('categories');
-  activeCategory = signal<Category | null>(null);
+  activeCategory = signal<CatalogCategory | null>(null);
   
   cartService = inject(CartService);
   authService = inject(AuthService);
-  
-  Math = Math;
+
   
   isTransitioning = signal(false);
   categoryProgress = signal(1);
@@ -340,19 +310,11 @@ export class CarouselCylinderComponent {
   showSidebar = signal(false);
   showLoginModal = signal(false);
   isProductModalOpen = signal(false);
-  selectedProduct = signal<MenuItem | null>(null);
+  selectedProduct = signal<CatalogItem | null>(null);
   showToast = signal(false);
-  reservationSuccess = signal(false);
-
-  scrollToSystem() {
-    const el = document.getElementById('system-section');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
-  }
 
   categoryCards = computed<DisplayCard[]>(() => {
-    return this.menuService.categories().map(c => ({
+    return this.catalogService.categories().map(c => ({
       id: c.id,
       title: c.name,
       subtitle: c.subtitle,
@@ -369,7 +331,7 @@ export class CarouselCylinderComponent {
       id: item.id,
       title: item.name,
       subtitle: item.description,
-      price: item.price,
+      price: formatPrice(item.price),
       image: item.image,
       originalData: item
     }));
@@ -386,7 +348,8 @@ export class CarouselCylinderComponent {
 
   onCardSelect(card: DisplayCard) {
     if (this.viewState() === 'categories') {
-      // Transition to items view
+      // Transition to items view and leave the compact home teaser layout.
+      this.activeBox.set('catalog');
       this.isTransitioning.set(true);
       if (this.carousel3d) {
         this.categoryProgress.set(this.carousel3d.progress());
@@ -396,14 +359,14 @@ export class CarouselCylinderComponent {
       // Removed audio for wireframe
       
       setTimeout(() => {
-        this.activeCategory.set(card.originalData as Category);
+        this.activeCategory.set(card.originalData as CatalogCategory);
         this.viewState.set('items');
         this.isTransitioning.set(false);
       }, 300); // Wait for fade out
       
     } else {
       // Item selected
-      this.selectedProduct.set(card.originalData as MenuItem);
+      this.selectedProduct.set(card.originalData as CatalogItem);
       this.isProductModalOpen.set(true);
     }
   }
@@ -424,6 +387,13 @@ export class CarouselCylinderComponent {
   }
 
   // --- View Methods ---
+
+  /** Opens a section from the sidebar and closes it in the same beat. */
+  openPanel(panel: PanelId) {
+    this.showSidebar.set(false);
+    this.activeBox.set(panel);
+  }
+
   resetToHome() {
     this.closeProductModal();
     this.showCheckout.set(false);
@@ -501,10 +471,8 @@ export class CarouselCylinderComponent {
   }
 
   onOrderConfirmed() {
+    // The drawer keeps its confirmation screen open until the visitor closes it
+    // (button or Escape); only the cart is reset here.
     this.cartService.clearCart();
-    setTimeout(() => {
-      this.showCheckout.set(false);
-      this.showSidebar.set(true);
-    }, 3000); // Close checkout after showing success for 3 seconds
   }
 }

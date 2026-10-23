@@ -10,7 +10,7 @@ import {CarouselCylinderComponent} from './carousel-cylinder.component';
     :host {
       display: block;
       width: 100%;
-      height: 100vh;
+      height: 100dvh;
       background-color: var(--bg-main);
     }
   `]

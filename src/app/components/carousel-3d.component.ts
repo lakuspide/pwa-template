@@ -1,7 +1,8 @@
-import { Component, input, output, computed, signal, ChangeDetectionStrategy, ElementRef, HostListener } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
 import { animate } from 'motion';
+import { IconComponent } from '../shared/icon.component';
+import { CatalogCategory, CatalogItem } from '../models/catalog';
 
 export interface DisplayCard {
   id: string;
@@ -10,14 +11,22 @@ export interface DisplayCard {
   price?: string;
   icon?: string;
   image?: string;
-  originalData: any;
+  originalData: CatalogItem | CatalogCategory;
 }
 
 @Component({
   selector: 'app-carousel-3d',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, MatIconModule],
+  imports: [CommonModule, IconComponent],
+  styles: [`
+    :host {
+      display: block;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+    }
+  `],
   template: `
     <div class="relative w-full flex-1 min-h-[450px] max-h-[600px] flex flex-col items-center justify-center perspective-[1200px] transform-style-3d pointer-events-auto mb-6 touch-pan-y transition-all duration-500"
          (pointerdown)="onPointerDown($event)"
@@ -114,6 +123,7 @@ export class Carousel3dComponent {
 
   private isDragging = false;
   private hasDragged = false;
+  private captured = false;
   private startX = 0;
   private startProgress = 0;
   private lastDragX = 0;
@@ -145,7 +155,10 @@ export class Carousel3dComponent {
         transform: `translateX(${x}px) translateZ(${z}px) rotateY(${rotateY}deg)`,
         zIndex: Math.round(100 - absDiff * 10),
         opacity: Math.max(0, 1 - absDiff * 0.8),
-        filter: `blur(${absDiff * 4}px) brightness(${Math.max(0.4, 1 - absDiff * 0.5)})`,
+        // Depth is a darkening effect in the dark theme; in the light theme the
+        // same brightness would turn the white cards into a grey band, so the
+        // floor is theme-aware (`--carousel-depth-floor`).
+        filter: `blur(${absDiff * 4}px) brightness(max(var(--carousel-depth-floor, 0.4), ${1 - absDiff * 0.5}))`,
         isFront: absDiff < 0.1
       };
     });
@@ -156,6 +169,7 @@ export class Carousel3dComponent {
     
     this.isDragging = true;
     this.hasDragged = false;
+    this.captured = false;
     this.startX = e.clientX;
     this.lastDragX = e.clientX;
     this.startProgress = this.progress();
@@ -164,18 +178,21 @@ export class Carousel3dComponent {
     if (this.animation) {
       this.animation.stop();
     }
-    
-    const el = e.currentTarget as HTMLElement;
-    el.setPointerCapture(e.pointerId);
+    // Pointer capture is deferred until the gesture is clearly a drag. Capturing
+    // on pointerdown retargets the eventual click to the carousel instead of the
+    // card, which would make the cards unclickable.
   }
 
   onPointerMove(e: PointerEvent) {
     if (!this.isDragging) return;
     
     const deltaX = e.clientX - this.startX;
-    if (Math.abs(deltaX) > 10) {
+    if (!this.hasDragged && Math.abs(deltaX) > 10) {
       this.hasDragged = true;
       this.dragged.emit();
+      const el = e.currentTarget as HTMLElement;
+      el.setPointerCapture(e.pointerId);
+      this.captured = true;
     }
 
     const newProgress = this.startProgress - deltaX / 250;
@@ -196,7 +213,10 @@ export class Carousel3dComponent {
     this.isDragging = false;
     
     const el = e.currentTarget as HTMLElement;
-    el.releasePointerCapture(e.pointerId);
+    if (this.captured && el.hasPointerCapture(e.pointerId)) {
+      el.releasePointerCapture(e.pointerId);
+    }
+    this.captured = false;
 
     this.applyInertia();
   }

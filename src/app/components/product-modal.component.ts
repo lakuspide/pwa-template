@@ -1,14 +1,16 @@
 import { Component, inject, signal, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
-import { CartService, MenuItem } from '../services/cart.service';
+import { CartService } from '../services/cart.service';
+import { CatalogItem } from '../models/catalog';
 import { createParticleExplosion } from '../shared/particle-effect';
+import { IconComponent } from '../shared/icon.component';
+import { PricePipe } from '../shared/price.pipe';
 
 @Component({
   selector: 'app-product-modal',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, MatIconModule],
+  imports: [CommonModule, IconComponent, PricePipe],
   template: `
     <div class="fixed inset-0 z-[1000] flex flex-col animate-fade-in pointer-events-auto"
          role="dialog"
@@ -30,7 +32,7 @@ import { createParticleExplosion } from '../shared/particle-effect';
         <div class="bg-[var(--bg-surface)]/80 backdrop-blur-md rounded-[24px] p-5 border border-[var(--border-main)] shadow-2xl">
           <div class="flex justify-between items-start mb-1 gap-2">
             <h2 class="font-montserrat font-black text-xl text-[var(--text-main)] leading-tight drop-shadow-lg">{{ product()?.name }}</h2>
-            <span class="text-[var(--text-muted)] font-mono text-lg font-bold whitespace-nowrap drop-shadow-lg">{{ product()?.price }}</span>
+            <span class="text-[var(--text-muted)] font-mono text-lg font-bold whitespace-nowrap drop-shadow-lg">{{ product()?.price | appPrice }}</span>
           </div>
           
           <div class="w-8 h-1 bg-[var(--border-light)] rounded-full mb-3"></div>
@@ -77,7 +79,7 @@ import { createParticleExplosion } from '../shared/particle-effect';
 export class ProductModalComponent {
   cartService = inject(CartService);
   
-  product = input<MenuItem | null>(null);
+  product = input<CatalogItem | null>(null);
   
   closeModal = output<void>();
   addedToCart = output<void>();
