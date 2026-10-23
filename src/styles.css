@@ -1,0 +1,118 @@
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+@import "tailwindcss";
+
+@theme {
+  /* System font stack: resolves to San Francisco on Apple devices,
+     and the closest native equivalent everywhere else. This is the
+     only honest way to get "Apple typography" on the web (SF Pro
+     itself isn't licensed for embedding). */
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+                  "Helvetica Neue", Helvetica, Arial, sans-serif;
+  /* Kept as an alias so existing `font-montserrat` usage in components
+     (35 call sites) doesn't need to be touched to pick up the new font. */
+  --font-montserrat: var(--font-display);
+
+  /* Larger, "continuous corner" radius scale (the squircle feel of iOS
+     sheets/cards/buttons) — overriding Tailwind's scale here means every
+     rounded-lg/xl/2xl/3xl class across the app updates automatically. */
+  --radius-lg: 0.875rem;   /* 14px — controls, small buttons */
+  --radius-xl: 1.25rem;    /* 20px — cards */
+  --radius-2xl: 1.5rem;    /* 24px — sheets, drawers */
+  --radius-3xl: 2rem;      /* 32px — large modals */
+
+  /* Stronger frosted-glass blur (iOS material feel). backdrop-blur-*
+     shares this scale, so existing backdrop-blur-sm/md/xl usage
+     across the app gets the heavier, more authentic glass look. */
+  --blur-sm: 12px;
+  --blur-md: 20px;
+  --blur-xl: 32px;
+}
+
+@layer base {
+  :root {
+    /* Apple's own systemGray palette (dark mode values) */
+    --bg-main: #000000;        /* systemBackground */
+    --bg-surface: #1c1c1e;     /* systemGray6 */
+    --bg-hover: #2c2c2e;       /* systemGray5 */
+    --border-main: #3a3a3c;    /* systemGray4 */
+    --border-light: #48484a;   /* systemGray3 */
+    --text-main: #ffffff;      /* label */
+    --text-sec: #ebebf5;       /* secondaryLabel (flattened) */
+    --text-neutral: #c7c7cc;
+    --text-muted: #98989d;     /* systemGray */
+    --text-dim: #636366;       /* systemGray2 */
+
+    /* systemBlue — Apple's signature accent. Change this one value
+       (and its light-theme counterpart below) to re-brand the app. */
+    --color-accent: #0a84ff;
+  }
+
+  .light-theme {
+    /* Apple's own systemGray palette (light mode values) */
+    --bg-main: #f2f2f7;        /* systemGray6 — iOS grouped background */
+    --bg-surface: #ffffff;     /* systemBackground */
+    --bg-hover: #e5e5ea;       /* systemGray5 */
+    --border-main: #d1d1d6;    /* systemGray4 */
+    --border-light: #c7c7cc;   /* systemGray3 */
+    --text-main: #000000;      /* label */
+    --text-sec: #3c3c43;       /* secondaryLabel (flattened) */
+    --text-neutral: #48484a;
+    --text-muted: #8e8e93;     /* systemGray */
+    --text-dim: #aeaeb2;       /* systemGray2 */
+
+    --color-accent: #007aff;   /* systemBlue, light mode */
+  }
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-display);
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+/* Reusable frosted-glass material for headers, sheets and floating bars.
+   The iOS "material" look: a translucent surface + heavy blur + saturation
+   boost so colors behind it stay vivid instead of washing out gray. */
+.glass-material {
+  background-color: var(--bg-surface);
+  background-color: color-mix(in srgb, var(--bg-surface) 72%, transparent);
+  backdrop-filter: blur(var(--blur-xl)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--blur-xl)) saturate(180%);
+}
+
+@keyframes vibrate-expand {
+  0% { transform: scale(1.05) translate(0); }
+  20% { transform: scale(1.05) translate(-2px, 2px); }
+  40% { transform: scale(1.05) translate(-2px, -2px); }
+  60% { transform: scale(1.05) translate(2px, 2px); }
+  80% { transform: scale(1.05) translate(2px, -2px); }
+  100% { transform: scale(1.2) translate(0); }
+}
+
+.animate-vibrate-expand {
+  animation: vibrate-expand 0.6s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+
+/* Custom Scrollbar for Menu Overlay */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--border-light);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--text-dim);
+}
