@@ -1,102 +1,74 @@
-# 🏗️ Arquitectura Técnica: L.K.O.S PWA
+# Arquitectura
 
-Este documento detalla la estructura de código, tecnologías y flujos de datos para el despliegue del wireframe de **L.K.O.S (La Kuspide Operating System)**.
+## Vista general
 
-## 🛠️ Stack Tecnológico
-
-*   **Framework Core:** Angular (v21+, 100% Zoneless, Standalone Components).
-*   **Gestión de Estado:** Angular Signals (Reactividad pura y síncrona).
-*   **Estilos y Layouts:** Tailwind CSS (Arquitectura utilitaria de CSS, UI consistente).
-*   **Animaciones y Drag & Drop:** `motion` (Librería Vanilla JS para animaciones fluidas) + utilidades nativas de HTML5 o Angular CDK para arrastrar elementos.
-*   **Iconografía:** Angular Material Icons (integración ligera) y/o iconos en SVG personalizados.
-
-## 🗂️ Estructura de Directorios (Propuesta)
+Una sola pantalla (`CarouselCylinderComponent`) orquesta la experiencia; el resto
+son componentes de presentación que emiten eventos. No hay router: el estado de
+navegación son señales.
 
 ```text
-/src/app/
-│
-├── core/                   # Núcleo del Sistema Operativo
-│   ├── os-state.service.ts # Gestor principal de Signals (procesos, z-index, temas)
-│   ├── window.manager.ts   # Lógica matemática para redimensionar y posicionar ventanas
-│   └── platform.service.ts # Detección de dispositivo (Móvil vs Escritorio)
-│
-├── desktop/                # El entorno visual principal
-│   ├── desktop.component.ts        # Renderiza fondo y accesos directos
-│   ├── taskbar/                    # Barra de tareas
-│   │   ├── taskbar.component.ts
-│   │   ├── start-menu.component.ts # Menú de inicio
-│   │   └── system-tray.component.ts# Hora, estado de red, batería
-│   └── window/                     # Contenedor agnóstico de ventanas
-│       ├── window.component.ts     # Wrapper (botones de cerrar, redimensionar)
-│       └── window.directives.ts    # Directivas de Drag & Drop y Resize
-│
-├── apps/                   # Aplicaciones del Sistema (Instanciables)
-│   ├── k-files/            # Explorador de archivos
-│   ├── k-term/             # Terminal
-│   ├── k-settings/         # Ajustes
-│   └── k-web/              # Web Browser
-│
-└── shared/                 # Componentes genéricos de UI interna
-    ├── ui-button/
-    ├── ui-context-menu/
-    └── ui-dialog/
+App
+└── CarouselCylinderComponent        ← shell: estado y coordinación
+    ├── HeroSectionComponent         ← intro; swipe up / botón
+    ├── TopHeaderComponent           ← menú, marca, tema
+    ├── Carousel3dComponent          ← carrusel de categorías (identidad)
+    ├── HistorySectionComponent      ← teaser + panel "about"
+    ├── LocationsSectionComponent    ← tiendas + detalle
+    ├── TermsSectionComponent        ← legales
+    ├── ProductModalComponent        ← ficha + cantidad
+    ├── CheckoutDrawerComponent      ← carrito, total, pedido, éxito
+    ├── SidebarMenuComponent         ← navegación por rol
+    └── LoginModalComponent          ← selección de rol (mock)
 ```
 
-## 🧠 Arquitectura del Motor de Ventanas (Window Manager)
+## Estado
 
-El mayor desafío técnico de un OS simulado en web es el rendimiento renderizando múltiples ventanas y el control preciso de eventos del ratón/pantalla táctil.
+Todo vive en señales; no hay `NgRx` ni `BehaviorSubject`.
 
-### 1. El Estado Global (OS State Service)
+| Señal | Dueño | Para qué |
+| --- | --- | --- |
+| `appMode` | shell | `intro` o `catalog` |
+| `activeBox` | shell | panel abierto (`about`, `catalog`, `terms`, `location-1…4`, `null`) |
+| `viewState` | shell | `categories` o `items` dentro del catálogo |
+| `activeCategory` | shell | categoría cuyas fichas se están viendo |
+| `showCheckout`, `showSidebar`, `showLoginModal`, `isProductModalOpen` | shell | overlays |
+| `categories` | `CatalogService` | catálogo; mock o API |
+| `items`, `totalPrice`, `totalItems`, `orderLines` | `CartService` | carrito derivado |
+| `currentUser` | `AuthService` | rol y perfil |
+| `theme` | `ThemeService` | claro/oscuro + `theme-color` |
+| `updateReady` | `PwaUpdateService` | nueva versión esperando |
 
-Utilizaremos un Store basado en Signals (`os-state.service.ts`) que actuará como el "Kernel" del OS.
+`PanelId` (`models/panel.ts`) es la única fuente de ids de panel: si añades una
+sección, amplía ese union y la rama correspondiente en el shell.
 
-```typescript
-// Estructura del estado de los procesos/ventanas
-export interface Process {
-  id: string;             // Identificador único (e.g. 'sys.term.1')
-  title: string;          // Título en la barra superior
-  componentName: string;  // Qué app cargar dentro del contenedor
-  state: 'opened' | 'minimized' | 'maximized' | 'closed';
-  zIndex: number;         // Profundidad para decidir cuál está al frente
-  bounds: {               // Dimensiones y ubicación
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  };
-  icon: string;
-}
-```
+## Flujos
 
-El servicio tendrá Signals como `processesMap = signal<Map<string, Process>>()` y un `activeProcessId = signal<string | null>()`.
+**Entrar al catálogo.** `HeroSectionComponent` emite `enterCatalog` (botón o
+swipe), el shell pone `appMode = 'catalog'` y la sección del héroe se desplaza.
 
-### 2. Flujo de Renderizado de Ventanas
+**Categoría → ítems.** El carrusel emite `cardSelected`; el shell guarda la
+categoría y cambia `viewState`, con una transición de 300 ms que espera al fade.
 
-1.  El usuario hace clic en el ícono de "Terminal".
-2.  El evento invoca `OsStateService.spawn('k-term')`.
-3.  El servicio crea un nuevo objeto `Process`, le asigna coordenadas base y el z-index más alto disponible y lo añade al map.
-4.  El `desktop.component.html` tiene un *for loop* reactivo (`@for (process of processes(); track process.id)`) que renderiza componentes `<app-window>`.
-5.  `<app-window>` es un "*shell*" visual, dentro de él utilizará Angular `ViewContainerRef` o directivas estructurales (`@switch`) para renderizar dinámicamente el componente de la app (`<k-term>`).
+**Añadir al carrito.** El modal emite `addedToCart`; el shell limpia/cierra y
+muestra el toast. `CartService` fusiona líneas por `id`.
 
-### 3. Z-Index y Focalización (Enfoque)
+**Checkout.** El drawer pide el pedido a `OrderService`. En mock simula 1,2 s y
+devuelve `orderId`; con API hace `POST /orders`. Si falla, muestra el error y
+mantiene el carrito; si va bien, el shell lo vacía y abre la barra lateral.
 
-*   Cada vez que una ventana recibe una interacción (`mousedown` o toque), notifica al `OsStateService`.
-*   El servicio actualiza el `activeProcessId` y aumenta el `zIndex` de ese proceso por encima del máximo actual, desencadenando un render que trae la ventana al frente.
+**Actualizaciones.** El service worker avisa (`VERSION_READY`), el shell enseña
+el aviso y `applyUpdate()` activa la versión y recarga.
 
-## 🎨 Sistema de Diseño y UI
+## Decisiones que conviene conocer
 
-1.  **Glassmorphism Moderado:** Se utilizarán clases de Tailwind como `bg-white/70 backdrop-blur-md` (o `bg-zinc-900/80` para modo oscuro) en la barra de tareas y marcos de ventana, aportando una sensación de profundidad de OS moderno corporativo, pero cuidando el rendimiento en móviles.
-2.  **Modo Oscuro como un Ciudadano de Primera Clase:** Soporte profundo mediante la clase `dark:` en Tailwind, alternable instantáneamente desde `k-settings`.
-3.  **Movimiento Físico:** Al abrir una ventana, no aparece de golpe. Utilizará `motion` para escalar desde `scale: 0.9, opacity: 0` hasta su tamaño real con un efecto `spring` rápido. Al minimizar, se encogerá hacia su ícono en la barra de tareas.
-
-## 📱 Estrategia "Responsiva por Paradigma"
-
-Los sistemas operativos de escritorio no se ajustan directamente bien a pantallas de 375px.
-
-**Detección:** El sistema detectará el `viewport`.
-*   **Pantallas Grandes (+768px):** Paradigma de ventanas libre, solapables, *drag and drop* activado, barra de tareas inferor completa.
-*   **Pantallas Pequeñas (Mobile):** 
-    *   Las ventanas siempre se abren maximizadas (ancho 100%, altura total menos la barra de tareas).
-    *   El Drag & Resize se deshabilita preventivamente.
-    *   El gestor de ventanas emula una vista apilada tipo tarjetas (similar a la navegación entre apps en iOS) o un z-index simple donde solo la app frontal es visible.
-    *   La barra de tareas se convierte en un Dock compacto simplificado.
+- **Prerender estático**, no SSR en runtime: `outputMode: "static"` +
+  `prerender: true`. El despliegue es un montón de ficheros; `src/server.ts`
+  (Express) se eliminó porque no hace falta en producción.
+- **Sin `@angular/material`**: los `<mat-icon>` los resuelve `IconComponent`
+  con la fuente autoalojada. Cambiar a otro set de iconos es sustituir ese
+  componente.
+- **Estilos globales para el movimiento**: las animaciones (`animate-fade-in`,
+  `animate-slide-up`, `perspective-[1200px]`…) están en `styles.css` porque
+  Angular las aislaría al componente y varios overlays las comparten.
+- **Precios numéricos**: `CatalogItem.price: number` + pipe `appPrice`. Nada de
+  parsear cadenas de precio.
