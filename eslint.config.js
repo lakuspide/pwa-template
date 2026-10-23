@@ -34,6 +34,14 @@ module.exports = defineConfig([
     },
   },
   {
+    // `IconComponent` deliberately keeps the `mat-icon` selector so templates
+    // and consumers do not change; it is the one allowed exception.
+    files: ['src/app/shared/icon.component.ts'],
+    rules: {
+      '@angular-eslint/component-selector': 'off',
+    },
+  },
+  {
     files: ['**/*.html'],
     extends: [
       angular.configs.templateRecommended,
