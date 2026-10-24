@@ -1,6 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { SITE_CONFIG } from '../../site/site.config';
+import type { SectorPresetId } from '../../site/site.types';
 import { CatalogService } from './catalog.service';
 import { SiteService } from './site.service';
 
@@ -19,7 +21,7 @@ describe('CatalogService', () => {
   });
 
   it('should start populated with the active preset catalog (useMockData is true by default)', () => {
-    expect(service.categories().length).toBe(4);
+    expect(service.categories().length).toBe(SITE_CONFIG.catalog.length);
   });
 
   it('every category should expose id, name and a non-empty items array', () => {
@@ -43,17 +45,29 @@ describe('CatalogService', () => {
 
   it('load() in mock mode resolves without touching the network and keeps the preset data', async () => {
     await service.load();
-    expect(service.categories().length).toBe(4);
+    expect(service.categories().length).toBe(SITE_CONFIG.catalog.length);
     expect(service.isLoading()).toBe(false);
     expect(service.error()).toBeNull();
   });
 
-  it('follows the active preset when the demo switches sector', () => {
+  it('only follows another preset while the project is in demo mode', () => {
     const site = TestBed.inject(SiteService);
+    const target: SectorPresetId =
+      SITE_CONFIG.preset === 'showcase' ? 'menu' : 'showcase';
+    const changed = site.applyPreset(target);
 
-    site.applyPreset('showcase');
+    if (site.demoMode) {
+      const expected = site.catalog();
 
-    expect(service.categories()[0].name).toBe('Print');
-    expect(service.categories()[0].items[0].price).toBeNull();
+      expect(changed).toBe(true);
+      expect(service.categories().map((category) => category.id)).toEqual(
+        expected.map((category) => category.id),
+      );
+    } else {
+      expect(changed).toBe(false);
+      expect(service.categories().map((category) => category.id)).toEqual(
+        SITE_CONFIG.catalog.map((category) => category.id),
+      );
+    }
   });
 });
