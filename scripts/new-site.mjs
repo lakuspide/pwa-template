@@ -27,7 +27,19 @@ import {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const TEMPLATE_ROOT = path.resolve(__dirname, '..');
 const TEMPLATE_REPO = 'lakuspide/pwa-template';
-const TEMPLATE_ONLY_FILES = ['ARQUITECTURA.md', 'INTEGRACION.md', 'ROADMAP.md'];
+const TEMPLATE_ONLY_FILES = [
+  'ARQUITECTURA.md',
+  'INTEGRACION.md',
+  'INTEGRATION.md',
+  'ROADMAP.md',
+  'docs/GITHUB.md',
+];
+const FACTORY_ONLY_FILES = [
+  'scripts/new-site.mjs',
+  'scripts/lib/github.mjs',
+  'scripts/doctor.mjs',
+];
+const FACTORY_ONLY_DIRS = ['.opencode'];
 
 const rawArgs = parseArgs(process.argv.slice(2));
 
@@ -308,12 +320,19 @@ function applyBranding(options, templateCommit) {
   pkg.name = options.repoName;
   pkg.version = '0.1.0';
   pkg.description = options.description;
+  delete pkg.scripts.new;
+  delete pkg.scripts['repo:doctor'];
   fs.writeFileSync(packageFile, `${JSON.stringify(pkg, null, 2)}\n`);
 
-  for (const file of TEMPLATE_ONLY_FILES) {
+  for (const file of [...TEMPLATE_ONLY_FILES, ...FACTORY_ONLY_FILES, 'README.md']) {
     fs.rmSync(path.join(dir, file), { force: true });
   }
-  fs.rmSync(path.join(dir, 'README.md'), { force: true });
+  for (const directory of FACTORY_ONLY_DIRS) {
+    fs.rmSync(path.join(dir, directory), { recursive: true, force: true });
+  }
+  for (const directory of ['scripts/lib', 'scripts', 'docs']) {
+    removeIfEmpty(path.join(dir, directory));
+  }
 
   fs.writeFileSync(
     path.join(dir, 'README.md'),
@@ -460,8 +479,15 @@ function slugify(value) {
 }
 
 function deriveShortName(name) {
-  const first = name.trim().split(/\s+/)[0];
-  return (first.length <= 12 ? first : name.slice(0, 12).trim()) || name.slice(0, 12);
+  const clean = name.trim().replace(/\s+/g, ' ');
+  if (clean.length <= 12) {
+    return clean;
+  }
+  const twoWords = clean.split(' ').slice(0, 2).join(' ');
+  if (twoWords.length <= 12) {
+    return twoWords;
+  }
+  return clean.slice(0, 12).trim();
 }
 
 function sq(value) {
@@ -508,4 +534,10 @@ function runQuiet(command, args, options = {}) {
 
 function runLive(command, args, cwd) {
   execFileSync(command, args, { cwd, stdio: 'inherit' });
+}
+
+function removeIfEmpty(directory) {
+  if (fs.existsSync(directory) && fs.readdirSync(directory).length === 0) {
+    fs.rmdirSync(directory);
+  }
 }
