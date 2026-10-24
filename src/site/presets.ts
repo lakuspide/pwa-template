@@ -3,6 +3,7 @@ import type {
   BrandOverrides,
   PresetSummary,
   SiteConfig,
+  SiteContent,
   SiteIdentity,
   SitePreset,
   SiteTerms,
@@ -934,9 +935,62 @@ export const PRESET_SUMMARIES: PresetSummary[] = Object.values(SECTOR_PRESETS).m
 );
 
 /**
+ * Replaces the preset's demo brand inside the editorial copy.
+ *
+ * Generated projects only set `BRAND_OVERRIDES.appName`, so copy such as
+ * "Casa Verde cooks what the market gives us" would otherwise keep the demo
+ * name. Contact details stay untouched on purpose: they identify the demo
+ * mailbox/phone and are expected to be replaced by the project owner.
+ */
+function applyBrandCopy(content: SiteContent, from: string, to: string): SiteContent {
+  if (!from || !to || from === to) {
+    return content;
+  }
+
+  const swap = (text: string): string => text.split(from).join(to);
+
+  return {
+    ...content,
+    hero: {
+      meta: swap(content.hero.meta),
+      swipeHint: swap(content.hero.swipeHint),
+      enterLabel: swap(content.hero.enterLabel),
+    },
+    promo: {
+      label: swap(content.promo.label),
+      detail: swap(content.promo.detail),
+    },
+    about: {
+      title: swap(content.about.title),
+      lead: swap(content.about.lead),
+      paragraphs: content.about.paragraphs.map(swap),
+    },
+    locations: content.locations.map((location) => ({
+      ...location,
+      eyebrow: swap(location.eyebrow),
+      name: swap(location.name),
+      address: swap(location.address),
+      area: swap(location.area),
+      hours: swap(location.hours),
+      hoursLabel: location.hoursLabel ? swap(location.hoursLabel) : undefined,
+    })),
+    contact: { ...content.contact },
+    terms: {
+      ...content.terms,
+      intro: swap(content.terms.intro),
+      sections: content.terms.sections.map((section) => ({
+        heading: swap(section.heading),
+        body: swap(section.body),
+      })),
+    },
+  };
+}
+
+/**
  * Resolves a preset plus optional brand overrides into the object the app reads.
  * Only the fields a project actually sets are replaced; everything else keeps
- * the preset defaults.
+ * the preset defaults. The preset's demo brand name is also swapped out of the
+ * editorial copy, so a generated project never mentions the demo brand.
  */
 export function resolveSiteConfig(
   presetId: SectorPresetId,
@@ -945,13 +999,18 @@ export function resolveSiteConfig(
 ): SiteConfig {
   const preset = SECTOR_PRESETS[presetId];
   const identity: SiteIdentity = { ...preset.identity, ...overrides };
+  const content = applyBrandCopy(
+    preset.content,
+    preset.identity.appName,
+    identity.appName,
+  );
 
   return {
     preset: preset.id,
     demoMode,
     identity,
     features: { ...preset.features },
-    content: preset.content,
+    content,
     catalog: preset.catalog,
   };
 }
