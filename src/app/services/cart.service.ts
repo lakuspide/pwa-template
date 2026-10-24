@@ -10,9 +10,13 @@ export class CartService {
   /** Items currently in the cart. */
   items = signal<CartItem[]>([]);
 
-  /** Sum of `price * quantity` across all lines. Prices are numbers, so no parsing. */
+  /**
+   * Sum of `price * quantity` across all lines. Information-only items carry a
+   * `null` price; when they end up in a cart (a misconfigured preset) they
+   * contribute zero instead of breaking the total.
+   */
   totalPrice = computed(() =>
-    this.items().reduce((total, item) => total + item.price * item.quantity, 0),
+    this.items().reduce((total, item) => total + (item.price ?? 0) * item.quantity, 0),
   );
 
   /** Total number of units across all cart lines (not distinct items). */
@@ -23,7 +27,7 @@ export class CartService {
     this.items().map(({ id, name, price, quantity }) => ({
       itemId: id,
       name,
-      unitPrice: price,
+      unitPrice: price ?? 0,
       quantity,
     })),
   );

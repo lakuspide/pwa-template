@@ -5,8 +5,8 @@
  * every section declares its own list of panel ids.
  */
 
-/** The four placeholder branch/store panels. */
-export type LocationPanelId = 'location-1' | 'location-2' | 'location-3' | 'location-4';
+/** Store / office panels. Presets declare as many as they need (`location-1…n`). */
+export type LocationPanelId = `location-${number}`;
 
 /** Anything that can be expanded inside the catalog shell. `null` = home. */
 export type PanelId = 'about' | 'catalog' | 'terms' | LocationPanelId | null;

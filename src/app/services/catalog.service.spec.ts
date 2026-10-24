@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { CatalogService } from './catalog.service';
+import { SiteService } from './site.service';
 
 describe('CatalogService', () => {
   let service: CatalogService;
@@ -17,7 +18,7 @@ describe('CatalogService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should start populated with the bundled placeholder catalog (useMockData is true by default)', () => {
+  it('should start populated with the active preset catalog (useMockData is true by default)', () => {
     expect(service.categories().length).toBe(4);
   });
 
@@ -35,15 +36,24 @@ describe('CatalogService', () => {
     for (const item of allItems) {
       expect(item.id).toBeTruthy();
       expect(item.name).toBeTruthy();
-      expect(typeof item.price).toBe('number');
+      expect(item.price === null || typeof item.price === 'number').toBe(true);
       expect(item.image).toBeTruthy();
     }
   });
 
-  it('load() in mock mode resolves without touching the network and keeps the placeholder data', async () => {
+  it('load() in mock mode resolves without touching the network and keeps the preset data', async () => {
     await service.load();
     expect(service.categories().length).toBe(4);
     expect(service.isLoading()).toBe(false);
     expect(service.error()).toBeNull();
+  });
+
+  it('follows the active preset when the demo switches sector', () => {
+    const site = TestBed.inject(SiteService);
+
+    site.applyPreset('showcase');
+
+    expect(service.categories()[0].name).toBe('Print');
+    expect(service.categories()[0].items[0].price).toBeNull();
   });
 });

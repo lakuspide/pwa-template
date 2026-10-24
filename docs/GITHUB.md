@@ -62,9 +62,10 @@ Resultado:
 
 Si el repo va a tu cuenta personal, omite `--owner`: se usa la cuenta autenticada.
 
-> `--preset` se guarda en `.template.json` y en los topics para la siguiente
-> fase. Hoy el proyecto parte de la base genérica; el motor de presets (tema,
-> copy y catálogo de ejemplo) llega después.
+> `--preset` se aplica de verdad: escribe `ACTIVE_PRESET` y `BRAND_OVERRIDES` en
+> `src/site/site.config.ts` y pone `DEMO_MODE = false`. El proyecto arranca con
+> el catálogo, las secciones y los flags del sector elegido, sin selector de demo.
+> Detalle: [`PRESETS.md`](PRESETS.md).
 
 ## Opciones
 
@@ -92,8 +93,9 @@ Si el repo va a tu cuenta personal, omite `--owner`: se usa la cuenta autenticad
 
 1. Comprueba `gh`, la sesión, los scopes, el owner y que el repo no exista.
 2. Copia la plantilla desde `git archive` (solo archivos versionados).
-3. Sustituye nombre, slug, tagline, descripción, manifest, `index.html` y
-   `package.json`; escribe un README propio y `.template.json`.
+3. Aplica el preset en `src/site/site.config.ts` (`ACTIVE_PRESET`,
+   `BRAND_OVERRIDES`, `DEMO_MODE = false`), actualiza manifest, `index.html` y
+   `package.json`, y escribe un README propio y `.template.json`.
 4. Ejecuta `npm install` y `npm run build` (salvo `--skip-build`).
 5. Inicializa `main` y crea el commit inicial.
 6. Crea el repo, hace push y ajusta homepage, topics, issues, wiki y projects.

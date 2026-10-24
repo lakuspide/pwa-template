@@ -25,21 +25,27 @@ export interface DisplayCard {
       width: 100%;
       height: 100%;
       min-height: 0;
+      /* The drag surface is the host itself: the cards live in a 3D context
+         where side cards sit behind the container's own plane, so the inner
+         wrapper must not swallow their taps. */
+      pointer-events: auto;
     }
   `],
+  host: {
+    '(pointerdown)': 'onPointerDown($event)',
+    '(pointermove)': 'onPointerMove($event)',
+    '(pointerup)': 'onPointerUp($event)',
+    '(pointercancel)': 'onPointerUp($event)',
+    '(pointerleave)': 'onPointerUp($event)',
+  },
   template: `
-    <div class="relative w-full flex-1 min-h-[450px] max-h-[600px] flex flex-col items-center justify-center perspective-[1200px] transform-style-3d pointer-events-auto mb-6 touch-pan-y transition-all duration-500"
-         (pointerdown)="onPointerDown($event)"
-         (pointermove)="onPointerMove($event)"
-         (pointerup)="onPointerUp($event)"
-         (pointercancel)="onPointerUp($event)"
-         (pointerleave)="onPointerUp($event)">
+    <div class="relative w-full flex-1 min-h-[450px] max-h-[600px] flex flex-col items-center justify-center perspective-[1200px] transform-style-3d pointer-events-none mb-6 touch-pan-y transition-all duration-500">
 
       <!-- Cards Container -->
-      <div class="relative w-full h-full transform-style-3d z-10 transition-opacity duration-300"
+      <div class="relative w-full h-full transform-style-3d z-10 pointer-events-none transition-opacity duration-300"
            [class.opacity-0]="isTransitioning()">
         @for (card of cards(); track card.id; let i = $index) {
-          <div class="absolute top-1/2 left-1/2 w-72 h-[420px] -ml-36 -mt-[210px] origin-center will-change-transform"
+          <div class="absolute top-1/2 left-1/2 w-72 h-[420px] -ml-36 -mt-[210px] origin-center will-change-transform pointer-events-auto"
                [style.transform]="cardStyles()[i]?.transform"
                [style.z-index]="cardStyles()[i]?.zIndex"
                [style.opacity]="cardStyles()[i]?.opacity"
@@ -78,14 +84,16 @@ export interface DisplayCard {
                    [ngClass]="{'translate-y-0 scale-100': cardStyles()[i]?.isFront, 'translate-y-4 scale-90 opacity-60': !cardStyles()[i]?.isFront}">
                 
                 @if (card.icon && viewState() === 'categories') {
-                  <mat-icon class="text-[var(--text-dim)] text-4xl !w-10 !h-10 transition-colors duration-500 mb-2" 
-                            [ngClass]="{'text-[var(--text-sec)] drop-shadow-md': cardStyles()[i]?.isFront}">
+                  <mat-icon class="text-4xl !w-10 !h-10 transition-colors duration-500 mb-2"
+                            [style.color]="cardStyles()[i]?.isFront ? 'var(--text-sec)' : 'var(--text-dim)'"
+                            [ngClass]="{'drop-shadow-md': cardStyles()[i]?.isFront}">
                     {{ card.icon }}
                   </mat-icon>
                 }
                 
-                <h2 class="font-montserrat font-black text-2xl tracking-wide text-[var(--text-muted)] transition-all duration-500"
-                    [ngClass]="{'text-[var(--text-main)] drop-shadow-md scale-105': cardStyles()[i]?.isFront}">
+                <h2 class="font-montserrat font-black text-2xl tracking-wide transition-all duration-500"
+                    [style.color]="cardStyles()[i]?.isFront ? 'var(--text-main)' : 'var(--text-muted)'"
+                    [ngClass]="{'drop-shadow-md scale-105': cardStyles()[i]?.isFront}">
                   {{ card.title }}
                 </h2>
 
@@ -101,8 +109,10 @@ export interface DisplayCard {
               </div>
 
               <!-- Minimalist flicker indicator -->
-              <div class="absolute bottom-4 w-8 h-0.5 rounded-full bg-[var(--text-main)]/20 transition-all duration-500 z-10"
-                   [ngClass]="{'bg-[var(--color-accent)] w-12 shadow-[0_0_15px_rgba(10,132,255,0.7)]': cardStyles()[i]?.isFront}"></div>
+              <div class="absolute bottom-4 h-0.5 rounded-full transition-all duration-500 z-10"
+                   [style.background-color]="cardStyles()[i]?.isFront ? 'var(--color-accent)' : 'color-mix(in srgb, var(--text-main) 20%, transparent)'"
+                   [style.width]="cardStyles()[i]?.isFront ? '3rem' : '2rem'"
+                   [ngClass]="{'shadow-[0_0_15px_rgba(10,132,255,0.7)]': cardStyles()[i]?.isFront}"></div>
             </div>
           </div>
         }

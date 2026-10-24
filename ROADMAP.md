@@ -4,8 +4,8 @@ Lo que esta base **no** trae todavía, en orden de utilidad para un proyecto rea
 
 ## 1. Internacionalización
 
-Los textos están en inglés y centralizados solo parcialmente (`shared/copy.ts`
-para marca y formato; el resto vive en las plantillas). Falta:
+Los textos están en inglés y centralizados solo parcialmente (`src/site/presets.ts`
+para marca, contenido y catálogo; el resto vive en las plantillas). Falta:
 
 - extraer cadenas a un diccionario (`@angular/localize` o Transloco),
 - selector de idioma funcional (el anterior era decorativo y se eliminó),
@@ -47,8 +47,8 @@ Tras el primer build real, ajústalos al tamaño medido y añade Lighthouse en C
 
 ## 8. Tests
 
-Cubiertos: carrito, catálogo, pedidos, auth, modal de producto, checkout
-(éxito y error) y smoke test del shell con el carrusel.
+Cubiertos: carrito, catálogo, pedidos, auth, presets y cambio de sector, modal de
+producto, checkout (éxito y error) y smoke test del shell con el carrusel.
 Falta: `ThemeService` (persistencia y preferencia del sistema).
 
 ## 9. Analítica y errores

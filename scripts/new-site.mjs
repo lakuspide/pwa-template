@@ -27,6 +27,7 @@ import {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const TEMPLATE_ROOT = path.resolve(__dirname, '..');
 const TEMPLATE_REPO = 'lakuspide/pwa-template';
+const PRESETS_SOURCE = path.join(TEMPLATE_ROOT, 'src/site/presets.ts');
 const TEMPLATE_ONLY_FILES = [
   'ARQUITECTURA.md',
   'INTEGRACION.md',
@@ -137,6 +138,14 @@ function buildOptions(args) {
     args.description ?? `${name} — PWA de catálogo digital`,
   ).trim();
 
+  const presetIds = readPresetIds();
+  const preset = String(args.preset ?? 'boutique').trim();
+  if (!presetIds.includes(preset)) {
+    throw new Error(
+      `Preset no válido: "${preset}". Disponibles: ${presetIds.join(', ')}.`,
+    );
+  }
+
   const options = {
     name,
     slug,
@@ -146,7 +155,7 @@ function buildOptions(args) {
     description,
     owner,
     domain,
-    preset: String(args.preset ?? 'boutique').trim(),
+    preset,
     lang: args.lang ? String(args.lang) : null,
     locale: args.locale ? String(args.locale) : null,
     currency: args.currency ? String(args.currency).toUpperCase() : null,
@@ -202,7 +211,7 @@ function printPlan(options) {
   console.log(`  Slug          ${options.slug}`);
   console.log(`  Repo          ${options.noGithub ? '(sin GitHub)' : `${options.owner}/${options.repoName}`} (${options.visibility})`);
   console.log(`  Carpeta       ${options.dir}`);
-  console.log(`  Preset        ${options.preset} (se aplicará con el motor de presets)`);
+  console.log(`  Preset        ${options.preset} (aplicado; DEMO_MODE = false)`);
   console.log(`  Dominio       ${options.domain ?? '(sin dominio todavía)'}`);
   console.log(`  Build         ${options.skipBuild ? 'omitido' : 'npm install + npm run build'}`);
 }
@@ -239,61 +248,50 @@ function extractTemplate(destination, ref) {
 function applyBranding(options, templateCommit) {
   const dir = options.dir;
 
+  const siteConfigFile = path.join(dir, 'src/site/site.config.ts');
   replaceRequired(
-    path.join(dir, 'src/app/shared/copy.ts'),
-    /appName: '[^']*'/,
-    `appName: ${sq(options.name)}`,
+    siteConfigFile,
+    /export const DEMO_MODE = (?:true|false);/,
+    'export const DEMO_MODE = false;',
   );
   replaceRequired(
-    path.join(dir, 'src/app/shared/copy.ts'),
-    /shortName: '[^']*'/,
-    `shortName: ${sq(options.shortName)}`,
-  );
-  replaceRequired(
-    path.join(dir, 'src/app/shared/copy.ts'),
-    /tagline: '[^']*'/,
-    `tagline: ${sq(options.tagline)}`,
-  );
-  replaceRequired(
-    path.join(dir, 'src/app/shared/copy.ts'),
-    /description:\s*\n\s*'[^']*'/,
-    `description:\n    ${sq(options.description)}`,
-  );
-  replaceRequired(
-    path.join(dir, 'src/app/shared/copy.ts'),
-    /storagePrefix: '[^']*'/,
-    `storagePrefix: ${sq(options.slug)}`,
-  );
-  replaceRequired(
-    path.join(dir, 'src/app/shared/copy.ts'),
-    /version: '[^']*'/,
-    `version: '0.1.0'`,
+    siteConfigFile,
+    /export const ACTIVE_PRESET: SectorPresetId = '[^']*';/,
+    `export const ACTIVE_PRESET: SectorPresetId = ${sq(options.preset)};`,
   );
 
+  const overrides = {
+    appName: options.name,
+    shortName: options.shortName,
+    tagline: options.tagline,
+    description: options.description,
+    version: '0.1.0',
+    storagePrefix: options.slug,
+  };
   if (options.lang) {
-    replaceRequired(
-      path.join(dir, 'src/app/shared/copy.ts'),
-      /lang: '[^']*'/,
-      `lang: ${sq(options.lang)}`,
-    );
+    overrides.lang = options.lang;
   }
   if (options.locale) {
-    replaceRequired(
-      path.join(dir, 'src/app/shared/copy.ts'),
-      /locale: '[^']*'/,
-      `locale: ${sq(options.locale)}`,
-    );
+    overrides.locale = options.locale;
   }
   if (options.currency) {
-    replaceRequired(
-      path.join(dir, 'src/app/shared/copy.ts'),
-      /currency: '[^']*'/,
-      `currency: ${sq(options.currency)}`,
-    );
+    overrides.currency = options.currency;
   }
+  replaceRequired(
+    siteConfigFile,
+    /export const BRAND_OVERRIDES: BrandOverrides = \{[\s\S]*?\n\};/,
+    [
+      'export const BRAND_OVERRIDES: BrandOverrides = {',
+      ...Object.entries(overrides).map(([key, value]) => `  ${key}: ${sq(value)},`),
+      '};',
+    ].join('\n'),
+  );
 
   const indexFile = path.join(dir, 'src/index.html');
   replaceRequired(indexFile, /<title>[^<]*<\/title>/, `<title>${html(options.name)}</title>`);
+  if (options.lang) {
+    replaceRequired(indexFile, /<html lang="[^"]*">/, `<html lang="${html(options.lang)}">`);
+  }
   replaceRequired(
     indexFile,
     /name="description"\s*\n\s*content="[^"]*"/,
@@ -338,7 +336,7 @@ function applyBranding(options, templateCommit) {
     path.join(dir, 'README.md'),
     `# ${options.name}\n\n${options.description}\n\n` +
       `PWA creada desde [\`${TEMPLATE_REPO}\`](https://github.com/${TEMPLATE_REPO}) ` +
-      `(commit \`${templateCommit.slice(0, 7)}\`, preset registrado: \`${options.preset}\`).\n\n` +
+      `(commit \`${templateCommit.slice(0, 7)}\`, preset aplicado: \`${options.preset}\`, demo desactivado).\n\n` +
       `## Desarrollo\n\n` +
       '```bash\nnpm install\nnpm run dev    # http://localhost:4200\nnpm test\nnpm run build\n```\n\n' +
       `## Despliegue\n\nEl build estático queda en \`dist/app/browser\`.\n` +
@@ -353,6 +351,7 @@ function applyBranding(options, templateCommit) {
         ref: options.templateRef,
         commit: templateCommit,
         preset: options.preset,
+        demoMode: false,
         createdAt: new Date().toISOString(),
       },
       null,
@@ -406,6 +405,15 @@ function printNextSteps(options, repoUrl) {
 /* ------------------------------------------------------------------ */
 /* Helpers                                                             */
 /* ------------------------------------------------------------------ */
+
+function readPresetIds() {
+  const source = fs.readFileSync(PRESETS_SOURCE, 'utf8');
+  const ids = [...source.matchAll(/^  id: '([a-z][a-z-]*)',$/gm)].map((match) => match[1]);
+  if (ids.length === 0) {
+    throw new Error('No encuentro los presets en src/site/presets.ts.');
+  }
+  return ids;
+}
 
 function parseArgs(argv) {
   const result = {};

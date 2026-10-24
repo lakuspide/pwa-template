@@ -45,17 +45,20 @@ Devuelve el catálogo agrupado. El orden del array es el orden del carrusel.
 
 Reglas:
 
-- `price` es un **número** en la moneda configurada en `shared/copy.ts`.
+- `price` es un **número** en la moneda del preset activo (`src/site/site.config.ts`)
+  o `null` para catálogos informativos.
 - `icon` es un nombre de ligadura de Material Icons (`category`, `widgets`…).
 - `id` debe ser estable: el carrito y las líneas de pedido se apoyan en él.
 - `image` admite ruta relativa (`images/catalog-1.svg`) o URL absoluta.
 
 `CatalogService` expone `isLoading` y `error`; conecta un skeleton o un aviso de
-reintento a esas señales si tu API puede tardar.
+reintento a esas señales si tu API puede tardar. En modo mock el catálogo sale
+del preset activo (`src/site/presets.ts`), no de la API.
 
 ### `POST {apiBaseUrl}/orders`
 
 Lo llama `CheckoutDrawerComponent` a través de `OrderService.submitOrder()`.
+Solo se usa cuando el preset tiene `features.cart` y `features.checkout`.
 
 ```json
 {

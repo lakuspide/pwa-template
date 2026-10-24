@@ -6,12 +6,16 @@
  * so a new project only has to replace `CatalogService`'s data source.
  */
 
-/** A single sellable entry in the catalog (no cart state attached). */
+/** A single entry in the catalog (no cart state attached). */
 export interface CatalogItem {
   id: string;
   name: string;
-  /** Unit price as a number. Formatting happens in the view layer (`appPrice`). */
-  price: number;
+  /**
+   * Unit price as a number, or `null` for information-only catalogs
+   * (portfolios, service lists, property enquiries).
+   * Formatting happens in the view layer (`appPrice`).
+   */
+  price: number | null;
   description: string;
   /** Relative path or absolute URL to the item artwork. */
   image: string;

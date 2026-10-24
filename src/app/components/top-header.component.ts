@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent } from '../shared/icon.component';
-import { APP_COPY } from '../shared/copy';
+import { SiteService } from '../services/site.service';
 import { ThemeService } from '../services/theme.service';
 
 /** Fixed header: navigation trigger, home button and theme switch. */
@@ -26,7 +26,7 @@ import { ThemeService } from '../services/theme.service';
         <button (click)="resetView.emit()" aria-label="Back to the catalog home"
                 class="flex-1 h-[54px] bg-[var(--bg-surface)]/80 border border-[var(--border-main)] rounded-2xl px-6 backdrop-blur-md hover:bg-[var(--bg-hover)] transition-colors flex items-center justify-center shadow-lg pointer-events-auto group overflow-hidden relative">
           <div class="absolute inset-0 bg-gradient-to-r from-transparent to-[#ffffff]/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-          <span class="font-montserrat font-semibold tracking-tight text-[var(--text-main)] text-sm drop-shadow-md">{{ copy.appName }}</span>
+          <span class="font-montserrat font-semibold tracking-tight text-[var(--text-main)] text-sm drop-shadow-md">{{ site.identity().appName }}</span>
         </button>
 
         <!-- Theme toggle (right) -->
@@ -42,7 +42,7 @@ import { ThemeService } from '../services/theme.service';
   `,
 })
 export class TopHeaderComponent {
-  readonly copy = APP_COPY;
+  readonly site = inject(SiteService);
   readonly theme = inject(ThemeService);
 
   resetView = output<void>();

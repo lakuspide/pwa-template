@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent } from '../shared/icon.component';
-import { APP_COPY } from '../shared/copy';
+import { SiteService } from '../services/site.service';
 import { AuthService } from '../services/auth.service';
 import { PanelId } from '../models/panel';
 
@@ -43,7 +43,8 @@ import { PanelId } from '../models/panel';
         </div>
 
         <div class="flex-1 overflow-y-auto touch-pan-y p-6 flex flex-col gap-8 custom-scrollbar">
-          <!-- User profile or sign-in call to action -->
+          <!-- User profile or sign-in call to action (only when auth is enabled) -->
+          @if (site.features().auth) {
           @if (authService.currentUser()) {
             <div class="bg-[var(--text-main)]/5 rounded-2xl p-5 border border-[var(--border-main)]">
               <div class="flex items-center gap-4 mb-4">
@@ -140,6 +141,7 @@ import { PanelId } from '../models/panel';
               </div>
             }
           </nav>
+          }
         </div>
 
         <!-- Common links -->
@@ -147,23 +149,29 @@ import { PanelId } from '../models/panel';
           <button (click)="openPanel.emit('catalog')" class="text-left text-[var(--text-dim)] hover:text-[var(--text-sec)] text-sm transition-colors flex items-center gap-3">
             <mat-icon class="text-[18px]">storefront</mat-icon> Catalog
           </button>
-          <button (click)="openPanel.emit('about')" class="text-left text-[var(--text-dim)] hover:text-[var(--text-sec)] text-sm transition-colors flex items-center gap-3">
-            <mat-icon class="text-[18px]">info</mat-icon> About us
-          </button>
-          <button (click)="openPanel.emit(null)" class="text-left text-[var(--text-dim)] hover:text-[var(--text-sec)] text-sm transition-colors flex items-center gap-3">
-            <mat-icon class="text-[18px]">contact_support</mat-icon> Stores & contact
-          </button>
-          <button (click)="openPanel.emit('terms')" class="text-left text-[var(--text-dim)] hover:text-[var(--text-sec)] text-sm transition-colors flex items-center gap-3">
-            <mat-icon class="text-[18px]">gavel</mat-icon> Legal terms
-          </button>
-          <p class="text-[var(--text-dim)] text-xs mt-4">{{ copy.appName }} v{{ copy.version }}</p>
+          @if (site.features().about) {
+            <button (click)="openPanel.emit('about')" class="text-left text-[var(--text-dim)] hover:text-[var(--text-sec)] text-sm transition-colors flex items-center gap-3">
+              <mat-icon class="text-[18px]">info</mat-icon> About us
+            </button>
+          }
+          @if (site.features().locations && site.content().locations.length > 0) {
+            <button (click)="openPanel.emit(null)" class="text-left text-[var(--text-dim)] hover:text-[var(--text-sec)] text-sm transition-colors flex items-center gap-3">
+              <mat-icon class="text-[18px]">contact_support</mat-icon> Stores & contact
+            </button>
+          }
+          @if (site.features().terms) {
+            <button (click)="openPanel.emit('terms')" class="text-left text-[var(--text-dim)] hover:text-[var(--text-sec)] text-sm transition-colors flex items-center gap-3">
+              <mat-icon class="text-[18px]">gavel</mat-icon> Legal terms
+            </button>
+          }
+          <p class="text-[var(--text-dim)] text-xs mt-4">{{ site.identity().appName }} v{{ site.identity().version }}</p>
         </div>
       </div>
     </div>
   `,
 })
 export class SidebarMenuComponent {
-  readonly copy = APP_COPY;
+  readonly site = inject(SiteService);
   readonly authService = inject(AuthService);
 
   closeSidebar = output<void>();

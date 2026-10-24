@@ -56,9 +56,11 @@
     --text-muted: #98989d;     /* systemGray */
     --text-dim: #636366;       /* systemGray2 */
 
-    /* systemBlue — Apple's signature accent. Change this one value
-       (and its light-theme counterpart below) to re-brand the app. */
-    --color-accent: #0a84ff;
+    /* Accent pair. `SiteService` writes --accent-dark / --accent-light from the
+       active preset, so the demo can re-brand without touching CSS. */
+    --accent-dark: #0a84ff;
+    --accent-light: #007aff;
+    --color-accent: var(--accent-dark);
   }
 
   .light-theme {
@@ -74,7 +76,7 @@
     --text-muted: #8e8e93;     /* systemGray */
     --text-dim: #aeaeb2;       /* systemGray2 */
 
-    --color-accent: #007aff;   /* systemBlue, light mode */
+    --color-accent: var(--accent-light);
 
     /* Carousel side cards are dimmed in dark mode; in light mode the same
        brightness(0.5) would paint a grey band behind the front card. */

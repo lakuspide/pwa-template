@@ -41,6 +41,20 @@ npm run new -- \
 El generador verifica el build, crea `main`, hace el commit inicial y publica el
 repo con homepage y topics.
 
+## Presets
+
+Presets disponibles: `boutique`, `menu`, `showcase`, `services`, `real-estate`,
+`market`. Cada uno trae catálogo, textos y flags de funcionalidad.
+
+- El generador escribe `ACTIVE_PRESET`, `BRAND_OVERRIDES` y `DEMO_MODE = false`
+  en `src/site/site.config.ts`. No edites `src/app/shared/copy.ts` para marcar un
+  proyecto: es solo un reexport de compatibilidad.
+- En la plantilla (`DEMO_MODE = true`) el botón «Sector · demo» cambia de preset
+  en caliente. No lo desactives en el proyecto generado.
+- Catálogo y contenido por sector: `src/site/presets.ts`.
+- Tipos y flags: `src/site/site.types.ts`.
+- Guía completa en español: `docs/PRESETS.md`.
+
 ## Verificación mínima
 
 1. El repo existe y es privado (o público si se pidió).
@@ -48,19 +62,22 @@ repo con homepage y topics.
 3. `npm run build`, `npm test` y `npm run lint` pasan en el proyecto generado.
 4. No hay secretos: `.env`, `.dev.vars`, `.cloudflare-token`, `.github-token`.
 5. Manifest e `index.html` llevan el nombre del proyecto.
-6. El carrusel 3D sigue intacto.
+6. `DEMO_MODE = false`, `ACTIVE_PRESET` es el pedido y `BRAND_OVERRIDES` tiene la
+   marca; el selector de sector no aparece.
+7. El carrusel 3D sigue intacto.
 
 ## Guardarraíles
 
 - No sobrescribir un repo existente: el generador aborta; usa otro `--repo-name`.
 - No copiar `node_modules`, `dist`, `.angular`, `.wrangler` ni tokens.
 - Código y copy de la plantilla en inglés; documentación en español.
-- Precios como números; formato con `appPrice`.
+- Precios como números o `null` para catálogos informativos; formato con `appPrice`.
 - No tocar la geometría del carrusel ni el flujo de paneles sin pedirlo.
 - Probar en 390×844 y 820×1180; el usuario trabaja en tablet, sin depender de Escape.
 
 ## Documentación
 
 - `docs/GITHUB.md`: autenticación, flags, errores y seguridad.
-- `README.md`: arranque y estructura.
+- `docs/PRESETS.md`: motor de presets, flags y cómo añadir un sector.
+- `README.md`: arranque, presets y estructura.
 - `ARQUITECTURA.md`, `INTEGRATION.md`, `ROADMAP.md`: diseño y siguientes pasos.

@@ -7,6 +7,7 @@ import { createParticleExplosion } from '../shared/particle-effect';
 import { IconComponent } from '../shared/icon.component';
 import { PricePipe } from '../shared/price.pipe';
 import { OrderService } from '../services/order.service';
+import { SiteService } from '../services/site.service';
 
 @Component({
   selector: 'app-checkout-drawer',
@@ -95,7 +96,7 @@ import { OrderService } from '../services/order.service';
           <div class="mt-8 pt-8 border-t border-[var(--border-main)] transition-opacity duration-300" [class.opacity-30]="isConfirming()">
             <div class="flex justify-between items-end mb-6">
               <span class="text-[var(--text-main)]/60 font-montserrat text-sm">Estimated Total</span>
-              <span class="text-[var(--text-main)] font-mono text-4xl font-bold">{{ cartService.totalPrice() | appPrice }}</span>
+              <span class="text-[var(--text-main)] font-mono text-4xl font-bold">{{ cartService.totalPrice() | appPrice: site.identity().currency : site.identity().locale }}</span>
             </div>
             
             <div class="flex flex-col gap-4">
@@ -172,6 +173,7 @@ import { OrderService } from '../services/order.service';
             </div>
 
             <!-- Reviews (static placeholders, replace with real data) -->
+            @if (site.features().reviews) {
             <div class="mb-10">
               <div class="flex items-center justify-between mb-6">
                 <h3 class="text-[var(--text-main)] font-bold text-sm">Reviews</h3>
@@ -214,8 +216,10 @@ import { OrderService } from '../services/order.service';
                 </div>
               </div>
             </div>
+            }
 
             <!-- Join CTA -->
+            @if (site.features().auth) {
             @if (!authService.currentUser()) {
               <div class="bg-gradient-to-br from-[var(--border-main)]/20 to-transparent p-8 rounded-[2rem] border border-[var(--border-main)] text-center mb-10">
                 <mat-icon class="text-[var(--text-muted)] text-4xl mb-4">stars</mat-icon>
@@ -232,6 +236,13 @@ import { OrderService } from '../services/order.service';
                 <p class="text-[var(--text-dim)] text-xs mt-1">You can find it in your order history from the sidebar.</p>
               </div>
             }
+            } @else {
+              <div class="bg-[var(--bg-hover)]/50 p-6 rounded-[2rem] border border-[var(--border-main)] text-center mb-10">
+                <mat-icon class="text-[var(--text-muted)] text-3xl mb-2">receipt_long</mat-icon>
+                <p class="text-[var(--text-main)] font-bold">No account needed</p>
+                <p class="text-[var(--text-dim)] text-xs mt-1">Keep your order reference in case you need to contact us.</p>
+              </div>
+            }
 
             <button (click)="closeModal.emit()" class="w-full py-4 text-[var(--text-dim)] font-bold text-xs hover:text-[var(--text-sec)] transition-colors mb-8">
               Back to Home
@@ -245,6 +256,7 @@ import { OrderService } from '../services/order.service';
 export class CheckoutDrawerComponent {
   cartService = inject(CartService);
   authService = inject(AuthService);
+  readonly site = inject(SiteService);
   private orderService = inject(OrderService);
   
   closeModal = output<void>();

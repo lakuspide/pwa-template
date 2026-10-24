@@ -5,6 +5,7 @@
  *   npm run repo:doctor
  */
 import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { authStatus, ghAvailable, runQuiet } from './lib/github.mjs';
@@ -66,6 +67,15 @@ check('Identidad de Git', () => {
   }
   return `${name} <${email}>`;
 }, { hint: 'git config --global user.name "..." && git config --global user.email "..."' });
+
+check('Presets', () => {
+  const source = fs.readFileSync(path.join(ROOT, 'src/site/presets.ts'), 'utf8');
+  const ids = [...source.matchAll(/^  id: '([a-z][a-z-]*)',$/gm)].map((match) => match[1]);
+  if (ids.length === 0) {
+    throw new Error('no encuentro src/site/presets.ts');
+  }
+  return ids.join(', ');
+}, { critical: false, hint: 'El generador valida --preset contra esta lista' });
 
 check('Remoto de la plantilla', () => {
   const remote = runQuiet('git', ['remote', 'get-url', 'origin'], { cwd: ROOT });

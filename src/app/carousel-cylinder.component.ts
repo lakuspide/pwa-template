@@ -14,16 +14,17 @@ import { TermsSectionComponent } from './components/terms-section.component';
 import { HistorySectionComponent } from './components/history-section.component';
 import { TopHeaderComponent } from './components/top-header.component';
 import { HeroSectionComponent } from './components/hero-section.component';
+import { SectorSwitcherComponent } from './components/sector-switcher.component';
 import { Carousel3dComponent, DisplayCard } from './components/carousel-3d.component';
 import { PwaUpdateService } from './services/pwa-update.service';
 import { IconComponent } from './shared/icon.component';
-import { formatPrice } from './shared/price';
+import { SiteService } from './services/site.service';
 
 @Component({
   selector: 'app-carousel-cylinder',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, IconComponent, ProductModalComponent, CheckoutDrawerComponent, SidebarMenuComponent, LoginModalComponent, LocationsSectionComponent, TermsSectionComponent, HistorySectionComponent, TopHeaderComponent, HeroSectionComponent, Carousel3dComponent],
+  imports: [CommonModule, IconComponent, ProductModalComponent, CheckoutDrawerComponent, SidebarMenuComponent, LoginModalComponent, LocationsSectionComponent, TermsSectionComponent, HistorySectionComponent, TopHeaderComponent, HeroSectionComponent, Carousel3dComponent, SectorSwitcherComponent],
   template: `
     <div class="w-full min-h-screen bg-[var(--bg-main)] text-[var(--text-sec)] font-sans overflow-x-hidden relative">
       
@@ -69,7 +70,7 @@ import { formatPrice } from './shared/price';
                [class.h-full]="activeBox() !== null">
           
           <!-- About / special offer teaser -->
-          @if (activeBox() === null || activeBox() === 'about') {
+          @if (site.features().about && (activeBox() === null || activeBox() === 'about')) {
             <app-history-section
               [activeBox]="activeBox()"
               (setActiveBox)="activeBox.set($event)">
@@ -187,7 +188,7 @@ import { formatPrice } from './shared/price';
       <!-- Floating Action Buttons -->
       <div class="absolute bottom-8 right-8 z-[500] flex flex-col gap-4">
         <!-- Cart Indicator -->
-        @if (cartService.totalItems() > 0 && (activeBox() === null || activeBox() === 'catalog')) {
+        @if (site.features().cart && cartService.totalItems() > 0 && (activeBox() === null || activeBox() === 'catalog')) {
           <button (click)="showCheckout.set(true)"
                   aria-label="Open cart"
                   class="relative w-14 h-14 rounded-full bg-[var(--bg-hover)] border border-[var(--border-main)] flex items-center justify-center text-[var(--text-main)] hover:bg-[var(--border-main)] transition-all shadow-xl pointer-events-auto group">
@@ -200,8 +201,8 @@ import { formatPrice } from './shared/price';
       </div>
 
       <!-- Checkout Overlay (System Log) -->
-      @defer (when showCheckout()) {
-        @if (showCheckout()) {
+      @defer (when showCheckout() && site.features().checkout) {
+        @if (showCheckout() && site.features().checkout) {
           <app-checkout-drawer 
             (closeModal)="closeCheckout()"
             (requestLogin)="openLoginModal()"
@@ -223,8 +224,8 @@ import { formatPrice } from './shared/price';
       }
 
       <!-- Login Modal (Mock) -->
-      @defer (when showLoginModal()) {
-        @if (showLoginModal()) {
+      @defer (when showLoginModal() && site.features().auth) {
+        @if (showLoginModal() && site.features().auth) {
           <app-login-modal
             (closeModal)="showLoginModal.set(false)"
             (login)="mockLogin($event.email, $event.role)">
@@ -249,7 +250,7 @@ import { formatPrice } from './shared/price';
       }
 
       <!-- Branch / store panels -->
-      @if (activeBox() === null || activeBox() === 'location-1' || activeBox() === 'location-2' || activeBox() === 'location-3' || activeBox() === 'location-4') {
+      @if (showLocationsSection()) {
         <app-locations-section
           [activeBox]="activeBox()"
           (setActiveBox)="activeBox.set($event)">
@@ -257,11 +258,16 @@ import { formatPrice } from './shared/price';
       }
 
       <!-- Legal terms panel -->
-      @if (activeBox() === null || activeBox() === 'terms') {
+      @if (showTermsSection()) {
         <app-terms-section
           [activeBox]="activeBox()"
           (setActiveBox)="activeBox.set($event)">
         </app-terms-section>
+      }
+
+      <!-- Demo-only sector switcher -->
+      @if (site.demoMode) {
+        <app-sector-switcher (presetChanged)="onPresetChanged()"></app-sector-switcher>
       }
 
     </div> <!-- Closes flex-col relative content -->
@@ -276,6 +282,7 @@ export class CarouselCylinderComponent {
 
   catalogService = inject(CatalogService);
   pwaUpdateService = inject(PwaUpdateService);
+  readonly site = inject(SiteService);
 
   heroTouchStartY = 0;
   onHeroTouchStart(e: TouchEvent) {
@@ -331,7 +338,7 @@ export class CarouselCylinderComponent {
       id: item.id,
       title: item.name,
       subtitle: item.description,
-      price: formatPrice(item.price),
+      price: this.site.features().prices ? this.site.formatPrice(item.price) : undefined,
       image: item.image,
       originalData: item
     }));
@@ -341,6 +348,23 @@ export class CarouselCylinderComponent {
     if (this.viewState() !== 'items') return [];
     return [this.itemCards()];
   });
+
+  private readonly locationIds = computed(
+    () => new Set<PanelId>(this.site.content().locations.map((location) => location.id)),
+  );
+
+  /** The directory is shown on the home flow and while one of its details is open. */
+  readonly showLocationsSection = computed(() => {
+    if (!this.site.features().locations || this.site.content().locations.length === 0) {
+      return false;
+    }
+    const box = this.activeBox();
+    return box === null || this.locationIds().has(box);
+  });
+
+  readonly showTermsSection = computed(
+    () => this.site.features().terms && (this.activeBox() === null || this.activeBox() === 'terms'),
+  );
 
   onCarouselDrag() {
     // Removed audio for wireframe
@@ -401,6 +425,7 @@ export class CarouselCylinderComponent {
     setTimeout(() => {
       this.activeBox.set(null);
       this.viewState.set('categories');
+      this.activeCategory.set(null);
     }, 100);
   }
 
@@ -426,6 +451,30 @@ export class CarouselCylinderComponent {
     this.activeBox.set(null);
     this.viewState.set('categories');
     this.showSidebar.set(false);
+  }
+
+  // --- Preset switching (demo only) ---
+
+  /**
+   * Resets the shell after the sector changes: the catalog, prices, currency
+   * and enabled features are all different, so keeping a stale cart or an open
+   * detail panel would be misleading.
+   */
+  onPresetChanged() {
+    this.isProductModalOpen.set(false);
+    this.selectedProduct.set(null);
+    this.showCheckout.set(false);
+    this.showLoginModal.set(false);
+    this.showSidebar.set(false);
+    this.showToast.set(false);
+    this.cartService.clearCart();
+    this.activeBox.set(null);
+    this.viewState.set('categories');
+    this.activeCategory.set(null);
+    this.isTransitioning.set(false);
+    if (this.carousel3d) {
+      this.carousel3d.setProgress(1);
+    }
   }
 
   // --- Accessibility ---

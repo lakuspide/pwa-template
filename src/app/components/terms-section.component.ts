@@ -1,8 +1,10 @@
-import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PanelId } from '../models/panel';
+import { SiteService } from '../services/site.service';
 import { IconComponent } from '../shared/icon.component';
 
+/** Legal terms panel; copy and section list come from the active preset. */
 @Component({
   selector: 'app-terms-section',
   standalone: true,
@@ -16,7 +18,7 @@ import { IconComponent } from '../shared/icon.component';
           <div class="absolute inset-0 bg-gradient-to-r from-transparent to-[#ffffff]/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
           <div class="flex items-center gap-3 relative">
             <mat-icon class="text-[var(--text-muted)] text-[18px] group-hover:text-[var(--text-neutral)] transition-colors">description</mat-icon>
-            <span class="text-[var(--text-muted)] font-montserrat font-bold text-xs group-hover:text-[var(--text-sec)] transition-colors">Terms & Conditions</span>
+            <span class="text-[var(--text-muted)] font-montserrat font-bold text-xs group-hover:text-[var(--text-sec)] transition-colors">{{ site.content().terms.title }}</span>
           </div>
           <mat-icon class="text-[var(--text-dim)] text-[18px] group-hover:text-[var(--text-muted)] transition-colors relative">chevron_right</mat-icon>
         </button>
@@ -28,25 +30,26 @@ import { IconComponent } from '../shared/icon.component';
             <mat-icon>close</mat-icon>
           </button>
           <div class="w-full max-w-md bg-[var(--bg-surface)] border border-[var(--border-main)] rounded-[2.5rem] p-8 shadow-2xl mt-8">
-            <h2 class="font-montserrat font-black text-2xl text-[var(--text-main)] mb-8 text-center drop-shadow-md">Terms & Conditions</h2>
+            <h2 class="font-montserrat font-black text-2xl text-[var(--text-main)] mb-8 text-center drop-shadow-md">{{ site.content().terms.title }}</h2>
             <div class="text-[var(--text-neutral)] leading-loose font-light space-y-6 text-sm text-left">
-              <p>By using this application, you agree to the following terms and conditions:</p>
-              <ul class="list-disc pl-5 space-y-2">
-                <li>Condition 1 placeholder text.</li>
-                <li>Condition 2 placeholder text.</li>
-                <li>Condition 3 placeholder text.</li>
-                <li>Condition 4 placeholder text.</li>
-                <li>Condition 5 placeholder text.</li>
-              </ul>
-              <p class="mt-4 text-[var(--text-dim)] text-xs">Last updated: [date]</p>
+              <p>{{ site.content().terms.intro }}</p>
+              @for (section of site.content().terms.sections; track section.heading) {
+                <div>
+                  <h3 class="text-[var(--text-sec)] font-bold mb-1">{{ section.heading }}</h3>
+                  <p>{{ section.body }}</p>
+                </div>
+              }
+              <p class="mt-4 text-[var(--text-dim)] text-xs">{{ site.content().terms.updated }}</p>
             </div>
           </div>
         </div>
       }
     </div>
-  `
+  `,
 })
 export class TermsSectionComponent {
+  readonly site = inject(SiteService);
+
   activeBox = input<PanelId>(null);
   setActiveBox = output<PanelId>();
 }
