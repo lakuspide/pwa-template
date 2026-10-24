@@ -62,6 +62,10 @@ Resultado:
 
 Si el repo va a tu cuenta personal, omite `--owner`: se usa la cuenta autenticada.
 
+> `--preset` se guarda en `.template.json` y en los topics para la siguiente
+> fase. Hoy el proyecto parte de la base genérica; el motor de presets (tema,
+> copy y catálogo de ejemplo) llega después.
+
 ## Opciones
 
 | Flag | Efecto |

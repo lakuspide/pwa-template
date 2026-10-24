@@ -338,7 +338,7 @@ function applyBranding(options, templateCommit) {
     path.join(dir, 'README.md'),
     `# ${options.name}\n\n${options.description}\n\n` +
       `PWA creada desde [\`${TEMPLATE_REPO}\`](https://github.com/${TEMPLATE_REPO}) ` +
-      `(commit \`${templateCommit.slice(0, 7)}\`, preset \`${options.preset}\`).\n\n` +
+      `(commit \`${templateCommit.slice(0, 7)}\`, preset registrado: \`${options.preset}\`).\n\n` +
       `## Desarrollo\n\n` +
       '```bash\nnpm install\nnpm run dev    # http://localhost:4200\nnpm test\nnpm run build\n```\n\n' +
       `## Despliegue\n\nEl build estático queda en \`dist/app/browser\`.\n` +
