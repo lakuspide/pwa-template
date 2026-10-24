@@ -1,4 +1,6 @@
 import { execFileSync, spawnSync } from 'node:child_process';
+import os from 'node:os';
+import path from 'node:path';
 
 /**
  * Small wrapper around the GitHub CLI.
@@ -7,7 +9,38 @@ import { execFileSync, spawnSync } from 'node:child_process';
  * owner, create an empty repository from the current directory and set its
  * metadata. Keeping them here makes `new-site.mjs` readable and gives us one
  * place to improve error messages.
+ *
+ * `gh` is resolved once: a login shell is not guaranteed when the generator
+ * runs from an editor or a task runner, so the usual install locations are
+ * checked besides `PATH`.
  */
+
+let cachedGhBin;
+
+export function ghBin() {
+  if (cachedGhBin) {
+    return cachedGhBin;
+  }
+
+  const candidates = [
+    process.env['GH_BIN'],
+    'gh',
+    path.join(os.homedir(), '.local', 'bin', 'gh'),
+    '/usr/local/bin/gh',
+    '/opt/homebrew/bin/gh',
+  ].filter(Boolean);
+
+  for (const candidate of candidates) {
+    const result = spawnSync(candidate, ['--version'], { encoding: 'utf8' });
+    if (result.status === 0) {
+      cachedGhBin = candidate;
+      return candidate;
+    }
+  }
+
+  cachedGhBin = 'gh';
+  return cachedGhBin;
+}
 
 export function run(command, args, options = {}) {
   return execFileSync(command, args, {
@@ -27,7 +60,7 @@ export function runQuiet(command, args, options = {}) {
 }
 
 export function gh(args, options = {}) {
-  return run('gh', args, options);
+  return run(ghBin(), args, options);
 }
 
 export function ghJson(args, options = {}) {
@@ -35,11 +68,11 @@ export function ghJson(args, options = {}) {
 }
 
 export function ghAvailable() {
-  return runQuiet('gh', ['--version']) !== null;
+  return runQuiet(ghBin(), ['--version']) !== null;
 }
 
 export function authStatus() {
-  const result = spawnSync('gh', ['auth', 'status'], { encoding: 'utf8' });
+  const result = spawnSync(ghBin(), ['auth', 'status'], { encoding: 'utf8' });
   const output = `${result.stdout ?? ''}\n${result.stderr ?? ''}`;
   return {
     authenticated: result.status === 0,
@@ -62,17 +95,17 @@ export function currentUser() {
 
 /** Returns `{ type: 'user' | 'org', login }`, or `null` when it cannot be resolved. */
 export function resolveOwner(owner) {
-  if (runQuiet('gh', ['api', `users/${owner}`, '--jq', '.login'])) {
+  if (runQuiet(ghBin(), ['api', `users/${owner}`, '--jq', '.login'])) {
     return { type: 'user', login: owner };
   }
-  if (runQuiet('gh', ['api', `orgs/${owner}`, '--jq', '.login'])) {
+  if (runQuiet(ghBin(), ['api', `orgs/${owner}`, '--jq', '.login'])) {
     return { type: 'org', login: owner };
   }
   return null;
 }
 
 export function repoExists(fullName) {
-  return runQuiet('gh', ['repo', 'view', fullName, '--json', 'name']) !== null;
+  return runQuiet(ghBin(), ['repo', 'view', fullName, '--json', 'name']) !== null;
 }
 
 export function createRepo({

@@ -8,7 +8,7 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { authStatus, ghAvailable, runQuiet } from './lib/github.mjs';
+import { authStatus, ghAvailable, ghBin, ghJson, runQuiet } from './lib/github.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const results = [];
@@ -34,7 +34,7 @@ check('GitHub CLI', () => {
   if (!ghAvailable()) {
     throw new Error('no instalado');
   }
-  return runQuiet('gh', ['--version'])?.split('\n')[0] ?? 'instalado';
+  return runQuiet(ghBin(), ['--version'])?.split('\n')[0] ?? 'instalado';
 }, { hint: 'Descarga gh en ~/.local/bin: https://github.com/cli/cli/releases' });
 
 check('Sesión de GitHub', () => {
@@ -42,7 +42,7 @@ check('Sesión de GitHub', () => {
   if (!auth.authenticated) {
     throw new Error('sin autenticar');
   }
-  const account = runQuiet('gh', ['api', 'user', '--jq', '.login']);
+  const account = ghJson(['api', 'user'])?.login;
   return `@${account}`;
 }, { hint: 'Ejecuta: gh auth login --hostname github.com --git-protocol https --web' });
 
