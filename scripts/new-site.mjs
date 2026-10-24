@@ -30,6 +30,7 @@ const TEMPLATE_REPO = 'lakuspide/pwa-template';
 const PRESETS_SOURCE = path.join(TEMPLATE_ROOT, 'src/site/presets.ts');
 const TEMPLATE_ONLY_FILES = [
   'ARQUITECTURA.md',
+  'CHANGELOG.md',
   'INTEGRACION.md',
   'INTEGRATION.md',
   'ROADMAP.md',

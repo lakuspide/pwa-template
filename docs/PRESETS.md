@@ -56,6 +56,13 @@ export const BRAND_OVERRIDES: BrandOverrides = {
   que permite que un proyecto generado se llame «Café Central» sin editar el
   preset `menu`.
 
+`BRAND_OVERRIDES.appName` no se queda en la cabecera: `resolveSiteConfig` lo
+sustituye también dentro del copy editorial del preset (`about`, `locations` y
+la introducción de los términos). Así un proyecto generado nunca menciona a la
+marca de la demo. Los datos de contacto (`email` y `phone`) **no** se sustituyen:
+siguen siendo los de ejemplo del preset, y hay que cambiarlos a mano en
+`src/site/presets.ts` → `content.contact` antes de publicar.
+
 La identidad resuelta se reexporta como `APP_COPY` en
 `src/app/shared/copy.ts` por compatibilidad, pero el código nuevo debe inyectar
 `SiteService` para reaccionar a los cambios.

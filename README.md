@@ -12,6 +12,8 @@ con roles, temas claro/oscuro, prerender estático y service worker.
 La plantilla arranca en **modo demo**. Un proyecto generado fija un solo preset
 y arranca con su propia marca.
 
+Historial de versiones: [`CHANGELOG.md`](CHANGELOG.md).
+
 ## Stack
 
 - Angular 21 (standalone, signals, zoneless, prerender estático)
@@ -62,6 +64,11 @@ export const DEMO_MODE = true;                    // false en proyectos generado
 export const ACTIVE_PRESET: SectorPresetId = 'boutique';
 export const BRAND_OVERRIDES: BrandOverrides = { appName: 'Mi proyecto' };
 ```
+
+`appName` se aplica en toda la app, incluido el copy editorial del preset
+(`about`, `locations`, términos): un proyecto generado no menciona la marca de
+la demo. El email y el teléfono de ejemplo no se sustituyen; cámbialos en
+`src/site/presets.ts` → `content.contact`.
 
 Detalle completo: [`docs/PRESETS.md`](docs/PRESETS.md).
 
@@ -135,7 +142,7 @@ pendiente en la plantilla.
 
 ## Tipos y tests
 
-`npm test` (48 tests en 9 archivos) cubre carrito (totales, cantidades, líneas
+`npm test` (51 tests en 10 archivos) cubre carrito (totales, cantidades, líneas
 de pedido), catálogo, pedidos (incluida la latencia simulada), auth, presets y
 cambio de sector, el modal de producto, el checkout (éxito y error) y un smoke
 test del shell con el carrusel.
