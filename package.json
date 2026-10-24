@@ -11,7 +11,9 @@
     "watch": "ng build --watch --configuration development",
     "preview": "npx --yes http-server dist/app/browser -p 4200 -c-1",
     "test": "ng test",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "new": "node scripts/new-site.mjs",
+    "repo:doctor": "node scripts/doctor.mjs"
   },
   "dependencies": {
     "@angular/common": "^21.0.0",
