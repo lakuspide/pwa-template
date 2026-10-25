@@ -66,6 +66,72 @@ describe('CarouselCylinderComponent', () => {
     expect(component.activeBox()).toBe('terms');
   });
 
+  it('shows 16 items per page and wraps with the pager arrows', () => {
+    const items = Array.from({ length: 18 }, (_, index) => ({
+      id: `item-${index}`,
+      name: `Item ${index}`,
+      price: 1 + index,
+      description: 'Test item',
+      image: 'images/catalog-1.svg',
+    }));
+
+    component.activeCategory.set({
+      id: 'test-category',
+      name: 'Test',
+      subtitle: 'Test',
+      icon: 'inventory_2',
+      image: 'images/catalog-1.svg',
+      items,
+    });
+    component.viewState.set('items');
+
+    expect(component.pageCount()).toBe(2);
+    expect(component.paginatedItems()[0].length).toBe(16);
+    expect(component.paginatedItems()[1].length).toBe(2);
+    expect(component.currentPage()).toBe(0);
+
+    component.nextPage();
+    expect(component.currentPage()).toBe(1);
+
+    // The last page loops back to the first one, like the category carousel.
+    component.nextPage();
+    expect(component.currentPage()).toBe(0);
+
+    component.previousPage();
+    expect(component.currentPage()).toBe(1);
+  });
+
+  it('resets the item page when another category is opened', () => {
+    vi.useFakeTimers();
+    try {
+      component.activeCategory.set({
+        id: 'test-category',
+        name: 'Test',
+        subtitle: 'Test',
+        icon: 'inventory_2',
+        image: 'images/catalog-1.svg',
+        items: Array.from({ length: 18 }, (_, index) => ({
+          id: `item-${index}`,
+          name: `Item ${index}`,
+          price: 1,
+          description: 'Test item',
+          image: 'images/catalog-1.svg',
+        })),
+      });
+      component.viewState.set('items');
+      component.nextPage();
+      expect(component.currentPage()).toBe(1);
+
+      component.viewState.set('categories');
+      component.onCardSelect(component.categoryCards()[0]);
+      vi.advanceTimersByTime(300);
+
+      expect(component.currentPage()).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('clears the cart once the order is confirmed', () => {
     cart.addItem(
       { id: 'A', name: 'Item A', price: 10, description: 'd', image: 'images/catalog-1.svg' },

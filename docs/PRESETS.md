@@ -128,6 +128,28 @@ catalog: catalog('menu', [
   del proyecto.
 - El orden de las categorías es el orden del carrusel.
 
+### Páginas de 16 ítems
+
+El catálogo de una categoría se parte en páginas de **16 ítems** como máximo.
+Las páginas se cambian con un gesto horizontal (o las flechas y los puntos), y
+dentro de cada página solo hay scroll vertical. No hay scroll infinito: el
+usuario siempre sabe cuántas páginas quedan (`1/2`) y el contenido es local, así
+que la paginación funciona sin conexión.
+
+`paginate()` y `wrapPage()` viven en `src/app/shared/paginate.ts`; el tamaño de
+página es la constante `ITEMS_PER_PAGE` de `carousel-cylinder.component.ts`.
+La última página muestra los ítems que queden y el pager enlaza la última con la
+primera, igual que el carrusel de categorías.
+
+### Carrusel adaptativo
+
+La geometría del carrusel vive en `src/app/shared/carousel-layout.ts`. Con 3–4
+categorías se mantiene el diseño original; a partir de 5, las vecinas lejanas
+asoman con más separación y menos opacidad, de modo que se intuye que la rueda
+sigue. Debajo del carrusel aparecen un punto por categoría y un contador
+(`3/9`); con una sola categoría se desactiva el arrastre y no se muestra el
+pager.
+
 ## Añadir un preset
 
 1. Añade el id a `PRESET_IDS` en `src/site/site.types.ts`.

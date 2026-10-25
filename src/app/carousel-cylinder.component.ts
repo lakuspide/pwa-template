@@ -19,6 +19,10 @@ import { Carousel3dComponent, DisplayCard } from './components/carousel-3d.compo
 import { PwaUpdateService } from './services/pwa-update.service';
 import { IconComponent } from './shared/icon.component';
 import { SiteService } from './services/site.service';
+import { paginate, wrapPage } from './shared/paginate';
+
+/** Items shown per page. No infinite scroll: a page is a fixed, local chunk. */
+const ITEMS_PER_PAGE = 16;
 
 @Component({
   selector: 'app-carousel-cylinder',
@@ -125,27 +129,79 @@ import { SiteService } from './services/site.service';
         }
       </div>
 
-      <!-- Grid View for Items (P3.4) -->
-      <div [class.hidden]="viewState() !== 'items'" class="w-full h-[60vh] flex overflow-x-auto snap-x snap-mandatory custom-scrollbar transition-opacity duration-300"
+      <!-- Grid View for Items: 16 per page, horizontal pager, vertical scroll inside a page -->
+      <div [class.hidden]="viewState() !== 'items'"
+           class="w-full h-[60vh] flex flex-col transition-opacity duration-300"
            [class.opacity-0]="isTransitioning()">
-        @for (page of paginatedItems(); track $index) {
-          <div class="min-w-full h-full flex-shrink-0 snap-center px-2 pt-28 pb-4 overflow-y-auto">
-            <div class="grid grid-cols-2 gap-2 content-start pb-24">
-              @for (item of page; track item.id) {
-                <div class="bg-[var(--text-main)]/5 border border-[var(--border-main)] rounded-xl p-2 flex flex-col items-center cursor-pointer hover:bg-[var(--text-main)]/10 transition-colors active:scale-95 min-w-0"
-                     role="button"
-                     tabindex="0"
-                     [attr.aria-label]="'Open ' + item.title"
-                     (click)="onCardSelect(item)"
-                     (keydown.enter)="onCardSelect(item)">
-                  <div class="w-full aspect-square bg-[var(--bg-surface)] rounded-lg mb-2 overflow-hidden relative border border-[var(--border-main)]">
-                     <img [src]="item.image" [alt]="item.title" class="absolute inset-0 w-full h-full object-cover opacity-50 grayscale">
-                  </div>
-                  <span class="text-xs font-bold text-center text-[var(--text-sec)] line-clamp-2 leading-tight w-full">{{item.title}}</span>
-                  <span class="text-[10px] text-[var(--text-muted)] mt-1">{{item.price}}</span>
+
+        <div class="relative flex-1 min-h-0 overflow-hidden">
+          <div #itemsTrack
+               class="flex h-full will-change-transform"
+               [class.transition-transform]="!isPagingDrag()"
+               [class.duration-500]="!isPagingDrag()"
+               [class.ease-out]="!isPagingDrag()"
+               [style.transform]="'translateX(calc(' + (-currentPage() * 100) + '% + ' + pageDragPx() + 'px))'"
+               (pointerdown)="onPagePointerDown($event)"
+               (pointermove)="onPagePointerMove($event)"
+               (pointerup)="onPagePointerUp($event)"
+               (pointercancel)="onPagePointerUp($event)">
+            @for (page of paginatedItems(); track $index) {
+              <div class="min-w-full h-full flex-shrink-0 px-2 pt-28 pb-4 overflow-y-auto overscroll-contain touch-pan-y"
+                   [attr.data-page-index]="$index">
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 content-start pb-24">
+                  @for (item of page; track item.id) {
+                    <div class="bg-[var(--text-main)]/5 border border-[var(--border-main)] rounded-xl p-2 flex flex-col items-center cursor-pointer hover:bg-[var(--text-main)]/10 transition-colors active:scale-95 min-w-0"
+                         role="button"
+                         tabindex="0"
+                         [attr.data-catalog-item]="item.id"
+                         [attr.aria-label]="'Open ' + item.title"
+                         (click)="onCardSelect(item)"
+                         (keydown.enter)="onCardSelect(item)">
+                      <div class="w-full aspect-[4/3] bg-[var(--bg-surface)] rounded-lg mb-1.5 overflow-hidden relative border border-[var(--border-main)]">
+                         <img [src]="item.image" [alt]="item.title" draggable="false" class="absolute inset-0 w-full h-full object-cover opacity-50 grayscale">
+                      </div>
+                      <span class="text-xs font-bold text-center text-[var(--text-sec)] line-clamp-2 leading-tight w-full">{{item.title}}</span>
+                      <span class="text-[10px] text-[var(--text-muted)] mt-1">{{item.price}}</span>
+                    </div>
+                  }
                 </div>
-              }
-            </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Page position and controls: dots, counter and arrows, no infinite scroll -->
+        @if (pageCount() > 1) {
+          <div class="flex-none h-11 flex items-center justify-center gap-2"
+               role="group"
+               aria-label="Item pages">
+            <button type="button"
+                    class="w-9 h-9 rounded-full bg-[var(--bg-surface)]/70 border border-[var(--border-main)] flex items-center justify-center text-[var(--text-muted)] active:scale-95 transition-all"
+                    aria-label="Previous page"
+                    (click)="previousPage()">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+
+            @for (page of paginatedItems(); track $index; let pageIndex = $index) {
+              <button type="button"
+                      class="p-1.5 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]/60"
+                      [attr.aria-label]="'Go to page ' + (pageIndex + 1)"
+                      [attr.aria-current]="currentPage() === pageIndex ? 'true' : null"
+                      (click)="goToPage(pageIndex)">
+                <span class="block h-1.5 w-1.5 rounded-full transition-all duration-300"
+                      [style.background-color]="currentPage() === pageIndex ? 'var(--color-accent)' : 'var(--text-dim)'"
+                      [style.opacity]="currentPage() === pageIndex ? '1' : '0.5'"
+                      [style.transform]="currentPage() === pageIndex ? 'scale(1.4)' : 'scale(1)'"></span>
+              </button>
+            }
+            <span class="ml-1 text-[10px] font-mono text-[var(--text-dim)] tabular-nums">{{ currentPage() + 1 }}/{{ pageCount() }}</span>
+
+            <button type="button"
+                    class="w-9 h-9 rounded-full bg-[var(--bg-surface)]/70 border border-[var(--border-main)] flex items-center justify-center text-[var(--text-muted)] active:scale-95 transition-all"
+                    aria-label="Next page"
+                    (click)="nextPage()">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
           </div>
         }
       </div>
@@ -325,6 +381,7 @@ export class CarouselCylinderComponent {
       id: c.id,
       title: c.name,
       subtitle: c.subtitle,
+      meta: c.items.length === 1 ? '1 item' : `${c.items.length} items`,
       icon: c.icon,
       image: c.image,
       originalData: c
@@ -346,8 +403,30 @@ export class CarouselCylinderComponent {
 
   paginatedItems = computed(() => {
     if (this.viewState() !== 'items') return [];
-    return [this.itemCards()];
+    return paginate(this.itemCards(), ITEMS_PER_PAGE);
   });
+
+  /** Raw page index; clamped by `currentPage()` if the list shrinks. */
+  itemsPage = signal(0);
+  /** Live horizontal drag offset, in px. */
+  pageDragPx = signal(0);
+  isPagingDrag = signal(false);
+
+  itemPages = computed(() => this.paginatedItems());
+  pageCount = computed(() => this.itemPages().length);
+  currentPage = computed(() =>
+    Math.min(this.itemsPage(), Math.max(0, this.pageCount() - 1)),
+  );
+
+  /** Timestamp of the last page drag, used to swallow the click it produces. */
+  private lastPageDragAt = 0;
+  private pagingPointerId: number | null = null;
+  private pageAxis: 'pending' | 'x' | 'y' = 'pending';
+  private pageStartX = 0;
+  private pageStartY = 0;
+  private pageLastX = 0;
+  private pageLastTime = 0;
+  private pageVelocity = 0;
 
   private readonly locationIds = computed(
     () => new Set<PanelId>(this.site.content().locations.map((location) => location.id)),
@@ -375,6 +454,8 @@ export class CarouselCylinderComponent {
       // Transition to items view and leave the compact home teaser layout.
       this.activeBox.set('catalog');
       this.isTransitioning.set(true);
+      this.itemsPage.set(0);
+      this.pageDragPx.set(0);
       if (this.carousel3d) {
         this.categoryProgress.set(this.carousel3d.progress());
       }
@@ -389,9 +470,116 @@ export class CarouselCylinderComponent {
       }, 300); // Wait for fade out
       
     } else {
+      // A horizontal page drag must not open the item it started on.
+      if (performance.now() - this.lastPageDragAt < 350) {
+        return;
+      }
+
       // Item selected
       this.selectedProduct.set(card.originalData as CatalogItem);
       this.isProductModalOpen.set(true);
+    }
+  }
+
+  // --- Item pager ------------------------------------------------------
+  //
+  // 16 items per page, horizontal swipe/arrow to change page, vertical
+  // scroll inside the page to reach the last row. Pages wrap around, like
+  // the category carousel.
+
+  goToPage(page: number) {
+    if (this.pageCount() <= 1) return;
+    this.pageDragPx.set(0);
+    this.itemsPage.set(wrapPage(page, this.pageCount()));
+  }
+
+  nextPage() {
+    this.goToPage(this.currentPage() + 1);
+  }
+
+  previousPage() {
+    this.goToPage(this.currentPage() - 1);
+  }
+
+  onPagePointerDown(e: PointerEvent) {
+    if (this.pageCount() <= 1 || this.isTransitioning()) return;
+    // Arrows and dots live inside the pager; they must not start a drag.
+    if ((e.target as HTMLElement).closest('button')) return;
+
+    this.pagingPointerId = e.pointerId;
+    this.pageAxis = 'pending';
+    this.pageStartX = e.clientX;
+    this.pageStartY = e.clientY;
+    this.pageLastX = e.clientX;
+    this.pageLastTime = performance.now();
+    this.pageVelocity = 0;
+    this.pageDragPx.set(0);
+  }
+
+  onPagePointerMove(e: PointerEvent) {
+    if (this.pagingPointerId !== e.pointerId) return;
+
+    const deltaX = e.clientX - this.pageStartX;
+    const deltaY = e.clientY - this.pageStartY;
+
+    if (this.pageAxis === 'pending') {
+      if (Math.abs(deltaX) < 8 && Math.abs(deltaY) < 8) return;
+      // Lock the axis once: a vertical gesture belongs to the page's own
+      // scroll, a horizontal one belongs to the pager.
+      this.pageAxis = Math.abs(deltaX) > Math.abs(deltaY) ? 'x' : 'y';
+      if (this.pageAxis === 'y') return;
+
+      const el = e.currentTarget as HTMLElement;
+      el.setPointerCapture(e.pointerId);
+      this.isPagingDrag.set(true);
+    }
+
+    if (this.pageAxis !== 'x') return;
+
+    this.pageDragPx.set(deltaX);
+
+    const now = performance.now();
+    const dt = now - this.pageLastTime;
+    if (dt > 0) {
+      this.pageVelocity = (e.clientX - this.pageLastX) / dt;
+    }
+    this.pageLastX = e.clientX;
+    this.pageLastTime = now;
+  }
+
+  onPagePointerUp(e: PointerEvent) {
+    if (this.pagingPointerId !== e.pointerId) return;
+
+    const wasHorizontal = this.pageAxis === 'x';
+    const drag = this.pageDragPx();
+    const velocity = this.pageVelocity;
+
+    this.pagingPointerId = null;
+    this.pageAxis = 'pending';
+
+    if (!wasHorizontal) {
+      return;
+    }
+
+    const el = e.currentTarget as HTMLElement;
+    if (el.hasPointerCapture(e.pointerId)) {
+      el.releasePointerCapture(e.pointerId);
+    }
+
+    this.isPagingDrag.set(false);
+    this.pageDragPx.set(0);
+    this.lastPageDragAt = performance.now();
+
+    const threshold = Math.min(120, Math.max(40, el.clientWidth * 0.18));
+    let delta = 0;
+    if (drag < -threshold || velocity < -0.45) {
+      delta = 1;
+    } else if (drag > threshold || velocity > 0.45) {
+      delta = -1;
+    }
+
+    if (delta !== 0) {
+      this.goToPage(this.currentPage() + delta);
     }
   }
 

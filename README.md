@@ -9,6 +9,11 @@ Incluye seis presets de sector (`boutique`, `menu`, `showcase`, `services`,
 flujo completo catálogo → ficha → carrito → checkout, autenticación de mentira
 con roles, temas claro/oscuro, prerender estático y service worker.
 
+El catálogo se pagina de 16 en 16 ítems, con cambio de página horizontal y solo
+un scroll vertical corto dentro de cada página. El carrusel de categorías ajusta
+su geometría al número de categorías (3, 4, 5, 6, 9…) y ofrece puntos y contador
+de posición.
+
 La plantilla arranca en **modo demo**. Un proyecto generado fija un solo preset
 y arranca con su propia marca.
 
@@ -142,10 +147,11 @@ pendiente en la plantilla.
 
 ## Tipos y tests
 
-`npm test` (51 tests en 10 archivos) cubre carrito (totales, cantidades, líneas
+`npm test` (72 tests en 12 archivos) cubre carrito (totales, cantidades, líneas
 de pedido), catálogo, pedidos (incluida la latencia simulada), auth, presets y
-cambio de sector, el modal de producto, el checkout (éxito y error) y un smoke
-test del shell con el carrusel.
+cambio de sector, paginación de 16 ítems, geometría del carrusel para 1–9
+categorías, el modal de producto, el checkout (éxito y error) y un smoke test
+del shell con el carrusel.
 
 ## Despliegue
 

@@ -2,12 +2,19 @@ import { ChangeDetectionStrategy, Component, computed, input, output, signal } f
 import { CommonModule } from '@angular/common';
 import { animate } from 'motion';
 import { IconComponent } from '../shared/icon.component';
+import {
+  cardDistance,
+  carouselCardLayout,
+  frontIndex,
+} from '../shared/carousel-layout';
 import { CatalogCategory, CatalogItem } from '../models/catalog';
 
 export interface DisplayCard {
   id: string;
   title: string;
   subtitle?: string;
+  /** Small contextual line, e.g. the number of items in a category. */
+  meta?: string;
   price?: string;
   icon?: string;
   image?: string;
@@ -42,14 +49,15 @@ export interface DisplayCard {
     <div class="relative w-full flex-1 min-h-[450px] max-h-[600px] flex flex-col items-center justify-center perspective-[1200px] transform-style-3d pointer-events-none mb-6 touch-pan-y transition-all duration-500">
 
       <!-- Cards Container -->
-      <div class="relative w-full h-full transform-style-3d z-10 pointer-events-none transition-opacity duration-300"
+      <div class="relative w-full flex-1 min-h-0 transform-style-3d z-10 pointer-events-none transition-opacity duration-300"
            [class.opacity-0]="isTransitioning()">
         @for (card of cards(); track card.id; let i = $index) {
-          <div class="absolute top-1/2 left-1/2 w-72 h-[420px] -ml-36 -mt-[210px] origin-center will-change-transform pointer-events-auto"
+          <div class="absolute top-1/2 left-1/2 w-72 h-[420px] -ml-36 -mt-[210px] origin-center will-change-transform"
                [style.transform]="cardStyles()[i]?.transform"
                [style.z-index]="cardStyles()[i]?.zIndex"
                [style.opacity]="cardStyles()[i]?.opacity"
-               [style.filter]="cardStyles()[i]?.filter">
+               [style.filter]="cardStyles()[i]?.filter"
+               [style.pointer-events]="cardStyles()[i]?.opacity === 0 ? 'none' : 'auto'">
             
             <!-- Card -->
             <div class="w-full h-full relative rounded-[24px] bg-[var(--bg-surface)] border border-[var(--border-main)] flex flex-col items-center justify-end p-6 cursor-pointer overflow-hidden transition-all duration-500 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/50 shadow-2xl group/card"
@@ -97,6 +105,13 @@ export interface DisplayCard {
                   {{ card.title }}
                 </h2>
 
+                @if (card.meta) {
+                  <p class="text-[10px] uppercase tracking-[0.18em] text-[var(--text-dim)] transition-opacity duration-500 drop-shadow-md"
+                     [ngClass]="{'opacity-100': cardStyles()[i]?.isFront, 'opacity-0': !cardStyles()[i]?.isFront}">
+                    {{ card.meta }}
+                  </p>
+                }
+
                 @if (card.price) {
                   <span class="text-[var(--text-muted)] font-mono text-xl font-bold mt-1 transition-all duration-500 drop-shadow-md"
                         [ngClass]="{'scale-110': cardStyles()[i]?.isFront}">{{ card.price }}</span>
@@ -117,6 +132,25 @@ export interface DisplayCard {
           </div>
         }
       </div>
+
+      <!-- Position: one dot per category, so a long rotation stays readable -->
+      @if (cards().length > 1) {
+        <div class="relative flex-none h-7 flex items-center justify-center gap-0.5 z-20 pointer-events-auto">
+          @for (card of cards(); track card.id; let i = $index) {
+            <button type="button"
+                    class="p-1.5 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]/60"
+                    [attr.aria-label]="'Go to ' + card.title"
+                    [attr.aria-current]="frontPosition() === i ? 'true' : null"
+                    (click)="goToCard(i, $event)">
+              <span class="block h-1.5 rounded-full transition-all duration-300"
+                    [style.width]="frontPosition() === i ? '18px' : '6px'"
+                    [style.background-color]="frontPosition() === i ? 'var(--color-accent)' : 'var(--text-dim)'"
+                    [style.opacity]="frontPosition() === i ? '1' : '0.5'"></span>
+            </button>
+          }
+          <span class="ml-2 text-[10px] font-mono text-[var(--text-dim)] tabular-nums">{{ frontPosition() + 1 }}/{{ cards().length }}</span>
+        </div>
+      }
     </div>
   `
 })
@@ -141,40 +175,36 @@ export class Carousel3dComponent {
   private velocity = 0;
   private animation: { stop: () => void } | undefined;
 
+  /** Card currently facing the user. */
+  frontPosition = computed(() => frontIndex(this.progress(), this.cards().length));
+
   getDiff(index: number, p: number, N: number): number {
-    let diff = (((index - p) % N) + N) % N;
-    if (diff > N / 2) diff -= N;
-    return diff;
+    return cardDistance(index, p, N);
   }
 
   cardStyles = computed(() => {
     const p = this.progress();
     const cardsList = this.cards();
     const N = cardsList.length;
-    
-    return cardsList.map((_, index) => {
-      const diff = this.getDiff(index, p, N);
-      const absDiff = Math.abs(diff);
 
-      const sign = Math.sign(diff);
-      const x = sign * (1 - Math.exp(-absDiff * 1.5)) * 260; 
-      const z = -absDiff * 300; 
-      const rotateY = -diff * 15; 
-      
+    return cardsList.map((_, index) => {
+      const layout = carouselCardLayout(cardDistance(index, p, N), N);
+
       return {
-        transform: `translateX(${x}px) translateZ(${z}px) rotateY(${rotateY}deg)`,
-        zIndex: Math.round(100 - absDiff * 10),
-        opacity: Math.max(0, 1 - absDiff * 0.8),
+        transform: `translateX(${layout.x}px) translateZ(${layout.z}px) rotateY(${layout.rotateY}deg)`,
+        zIndex: layout.zIndex,
+        opacity: layout.opacity,
         // Depth is a darkening effect in the dark theme; in the light theme the
         // same brightness would turn the white cards into a grey band, so the
         // floor is theme-aware (`--carousel-depth-floor`).
-        filter: `blur(${absDiff * 4}px) brightness(max(var(--carousel-depth-floor, 0.4), ${1 - absDiff * 0.5}))`,
-        isFront: absDiff < 0.1
+        filter: `blur(${layout.blur}px) brightness(max(var(--carousel-depth-floor, 0.4), ${layout.brightness}))`,
+        isFront: layout.isFront,
       };
     });
   });
 
   onPointerDown(e: PointerEvent) {
+    if (this.cards().length < 2) return;
     if (this.selectedItemId() !== null || this.isTransitioning()) return;
     
     this.isDragging = true;
@@ -279,5 +309,28 @@ export class Carousel3dComponent {
 
   setProgress(p: number) {
     this.progress.set(p);
+  }
+
+  /** Jumps to a category from its dot, taking the shortest way round. */
+  goToCard(index: number, event?: Event) {
+    event?.stopPropagation();
+    if (this.isTransitioning() || this.cards().length < 2) {
+      return;
+    }
+
+    const diff = cardDistance(index, this.progress(), this.cards().length);
+    if (Math.abs(diff) < 0.1) {
+      return;
+    }
+
+    this.animation?.stop();
+    const target = this.progress() + diff;
+    this.animation = animate(this.progress(), target, {
+      type: 'spring',
+      stiffness: 400,
+      damping: 40,
+      mass: 1,
+      onUpdate: (v) => this.progress.set(v),
+    });
   }
 }

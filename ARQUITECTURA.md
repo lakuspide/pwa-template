@@ -51,6 +51,13 @@ swipe), el shell pone `appMode = 'catalog'` y la sección del héroe se desplaza
 
 **Categoría → ítems.** El carrusel emite `cardSelected`; el shell guarda la
 categoría y cambia `viewState`, con una transición de 300 ms que espera al fade.
+Los ítems se reparten en páginas de 16; el pager es horizontal (gesto, flechas o
+puntos) y cada página tiene su propio scroll vertical.
+
+**Carrusel de categorías.** `Carousel3dComponent` mantiene un `progress`
+continuo; cada tarjeta calcula su transformación a partir de la distancia al
+frente (`carousel-layout.ts`). El mismo cálculo sirve para 1, 4 o 9 categorías y
+decide cuántas vecinas se ven. Los puntos y el contador leen `frontIndex()`.
 
 **Añadir al carrito.** El modal emite `addedToCart`; el shell limpia/cierra y
 muestra el toast. `CartService` fusiona líneas por `id`.

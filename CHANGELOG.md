@@ -4,6 +4,29 @@ Cambios relevantes de la plantilla. El formato sigue
 [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y las versiones,
 [SemVer](https://semver.org/lang/es/).
 
+## [1.2.0] — 2026-10-25
+
+### Añadido
+
+- El catálogo se pagina de **16 en 16** ítems, sin scroll infinito. La página
+  se cambia con un gesto horizontal, las flechas o los puntos, y dentro de la
+  página solo hay un scroll vertical corto. Las páginas enlazan en bucle.
+- El carrusel de categorías ajusta su geometría al número de categorías: el
+  diseño de 3–4 se mantiene, y con 5 o más las vecinas lejanas asoman con menor
+  opacidad.
+- Puntos de posición y contador (`3/9`) bajo el carrusel; con una sola categoría
+  el arrastre se desactiva.
+- Cada tarjeta de categoría muestra cuántos ítems contiene.
+- La demo de `market` amplía *Fruit & veg* a 18 ítems para poder ver la
+  paginación.
+
+### Cambiado
+
+- La rejilla de ítems pasa a 2 columnas en móvil, 3 en tablet pequeña y 4 en
+  tablet grande, para que 16 ítems pidan solo un scroll leve.
+- La geometría del carrusel y la paginación salen a funciones puras
+  (`carousel-layout.ts`, `paginate.ts`) con tests.
+
 ## [1.1.1] — 2026-10-24
 
 ### Corregido
