@@ -178,9 +178,16 @@ Para publicar a mano desde tu equipo:
 
 ```bash
 npm run build
-CLOUDFLARE_API_TOKEN=... CLOUDFLARE_ACCOUNT_ID=... npm run deploy
-# o guarda el token en ~/.cloudflare-token (chmod 600) y ejecuta npm run deploy
+npm run deploy                       # proyecto app-lakuspide por defecto
+npm run deploy -- --project otro     # cualquier otro proyecto de Pages
 ```
+
+Las credenciales se leen del entorno o del almacén permanente
+`~/.config/lakuspide/cloudflare.env` (permisos 600, fuera del repositorio), con
+`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_ZONE_ID` y
+`CLOUDFLARE_ZONE_NAME`. Se mantiene entre sesiones: no hay que volver a pegar
+el token. `npm run repo:doctor` comprueba que está configurado sin mostrar su
+valor.
 
 El token nunca se guarda en el repositorio ni se imprime en los logs. El
 service worker mantiene una copia de la versión anterior: tras un despliegue,

@@ -9,6 +9,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { authStatus, ghAvailable, ghBin, ghJson, runQuiet } from './lib/github.mjs';
+import { loadCloudflareCredentials } from './lib/credentials.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const results = [];
@@ -83,6 +84,19 @@ check('Remoto de la plantilla', () => {
     throw new Error('sin remoto origin');
   }
   return remote.replace(/^https:\/\/([^@]+@)?/, 'https://');
+});
+
+check('Credenciales de Cloudflare', () => {
+  const credentials = loadCloudflareCredentials();
+  if (!credentials.configured) {
+    throw new Error('token o cuenta sin configurar');
+  }
+  const account = credentials.accountId.slice(0, 8);
+  const zone = credentials.zoneId ? `zona ${credentials.zoneName}` : 'sin zona';
+  return `cuenta ${account}…, ${zone}\n  → ${credentials.store}`;
+}, {
+  critical: false,
+  hint: 'Guarda CLOUDFLARE_API_TOKEN y CLOUDFLARE_ACCOUNT_ID en el archivo indicado (chmod 600)',
 });
 
 check('API de GitHub', () => {

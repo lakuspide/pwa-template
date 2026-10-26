@@ -5,18 +5,16 @@
  *   npm run build
  *   npm run deploy
  *
- * Credentials, in order of precedence:
- *   1. CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID in the environment
- *   2. ~/.cloudflare-token (and ~/.cloudflare-account, optional)
- *
- * The token is never printed and never written to the repository.
+ * Credentials are read, in order, from the environment, the permanent store
+ * `~/.config/lakuspide/cloudflare.env` (chmod 600) or the legacy
+ * `~/.cloudflare-token` files. The token is never printed and never written
+ * to the repository.
  *
  *   npm run deploy -- --project app-lakuspide --branch main
  */
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
-import os from 'node:os';
-import path from 'node:path';
+import { loadCloudflareCredentials } from './lib/credentials.mjs';
 
 const DEFAULT_PROJECT = 'app-lakuspide';
 const BUILD_DIR = 'dist/app/browser';
@@ -26,33 +24,20 @@ function readArg(name, fallback) {
   return index === -1 ? fallback : process.argv[index + 1];
 }
 
-function readFileTrimmed(file) {
-  try {
-    return fs.readFileSync(file, 'utf8').trim();
-  } catch {
-    return '';
-  }
-}
-
 function fail(message) {
   console.error(`\n✖ ${message}\n`);
   process.exit(1);
 }
 
+const credentials = loadCloudflareCredentials();
 const generatedProject = fs.existsSync('.template.json');
 const project =
   readArg('project', '') ||
   process.env['CLOUDFLARE_PAGES_PROJECT'] ||
   (generatedProject ? '' : DEFAULT_PROJECT);
 const branch = readArg('branch', 'main');
-const accountId =
-  process.env['CLOUDFLARE_ACCOUNT_ID'] ||
-  readFileTrimmed(path.join(os.homedir(), '.cloudflare-account'));
-const token =
-  process.env['CLOUDFLARE_API_TOKEN'] ||
-  readFileTrimmed(path.join(os.homedir(), '.cloudflare-token'));
 
-if (!fs.existsSync(path.join(BUILD_DIR, 'index.html'))) {
+if (!fs.existsSync(`${BUILD_DIR}/index.html`)) {
   fail(`No hay build en ${BUILD_DIR}. Ejecuta primero: npm run build`);
 }
 
@@ -62,17 +47,17 @@ if (!project) {
   );
 }
 
-if (!token) {
+if (!credentials.token) {
   fail(
-    'Falta CLOUDFLARE_API_TOKEN. Expórtalo en el entorno o guárdalo en ~/.cloudflare-token ' +
-      '(permisos 600). No lo escribas en el repositorio.',
+    `Falta CLOUDFLARE_API_TOKEN. Guárdalo en ${credentials.store} (chmod 600) ` +
+      'o expórtalo en el entorno. No lo escribas en el repositorio.',
   );
 }
 
-if (!accountId) {
+if (!credentials.accountId) {
   fail(
-    'Falta CLOUDFLARE_ACCOUNT_ID. Expórtalo o guárdalo en ~/.cloudflare-account ' +
-      '(el id de cuenta no es secreto, pero conviene tenerlo a mano).',
+    'Falta CLOUDFLARE_ACCOUNT_ID. Expórtalo o guárdalo en ' +
+      `${credentials.store}.`,
   );
 }
 
@@ -95,8 +80,8 @@ const result = spawnSync(
     stdio: 'inherit',
     env: {
       ...process.env,
-      CLOUDFLARE_API_TOKEN: token,
-      CLOUDFLARE_ACCOUNT_ID: accountId,
+      CLOUDFLARE_API_TOKEN: credentials.token,
+      CLOUDFLARE_ACCOUNT_ID: credentials.accountId,
       WRANGLER_LOG_SANITIZE: 'true',
     },
   },
