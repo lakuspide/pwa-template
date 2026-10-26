@@ -13,7 +13,8 @@
     "test": "ng test",
     "lint": "ng lint",
     "new": "node scripts/new-site.mjs",
-    "repo:doctor": "node scripts/doctor.mjs"
+    "repo:doctor": "node scripts/doctor.mjs",
+    "deploy": "node scripts/deploy.mjs"
   },
   "dependencies": {
     "@angular/common": "^21.0.0",

@@ -37,6 +37,7 @@ const TEMPLATE_ONLY_FILES = [
   'docs/GITHUB.md',
 ];
 const FACTORY_ONLY_FILES = [
+  '.github/workflows/deploy-demo.yml',
   'scripts/new-site.mjs',
   'scripts/lib/github.mjs',
   'scripts/doctor.mjs',

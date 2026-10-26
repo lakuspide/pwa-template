@@ -159,3 +159,30 @@ El build es estático: sube `dist/app/browser` a cualquier hosting (Nginx,
 Netlify, Vercel, Cloudflare Pages, S3…). No necesita Node en producción.
 Recuerda servir `index.html` para rutas desconocidas y no cachear
 `ngsw-worker.js` de forma agresiva.
+
+### Demo en Cloudflare Pages
+
+El workflow [`.github/workflows/deploy-demo.yml`](.github/workflows/deploy-demo.yml)
+compila, pasa tests y publica en el proyecto `app-lakuspide` **en cada push a
+`main`**. Para activarlo, añade en *Settings → Secrets and variables → Actions*:
+
+| Secreto | Valor |
+| --- | --- |
+| `CLOUDFLARE_API_TOKEN` | Token de API con permiso **Cloudflare Pages: Edit** |
+| `CLOUDFLARE_ACCOUNT_ID` | `14bcd7d7da13116cdd61dbc6c0372ced` |
+
+Sin esos secretos el workflow sigue en verde pero avisa de que no ha
+desplegado.
+
+Para publicar a mano desde tu equipo:
+
+```bash
+npm run build
+CLOUDFLARE_API_TOKEN=... CLOUDFLARE_ACCOUNT_ID=... npm run deploy
+# o guarda el token en ~/.cloudflare-token (chmod 600) y ejecuta npm run deploy
+```
+
+El token nunca se guarda en el repositorio ni se imprime en los logs. El
+service worker mantiene una copia de la versión anterior: tras un despliegue,
+la app muestra el aviso de actualización o hay que borrar los datos del sitio
+una vez en el móvil.
