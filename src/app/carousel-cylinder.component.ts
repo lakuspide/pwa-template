@@ -223,6 +223,22 @@ const ITEMS_PER_PAGE = 16;
 
       } <!-- Closes activeBox() === null || activeBox() === 'catalog' -->
 
+      <!-- Branch / store tiles (detail panels are fixed overlays) -->
+      @if (showLocationsSection()) {
+        <app-locations-section
+          [activeBox]="activeBox()"
+          (setActiveBox)="activeBox.set($event)">
+        </app-locations-section>
+      }
+
+      <!-- Legal terms tile (detail panel is a fixed overlay) -->
+      @if (showTermsSection()) {
+        <app-terms-section
+          [activeBox]="activeBox()"
+          (setActiveBox)="activeBox.set($event)">
+        </app-terms-section>
+      }
+
     </div> <!-- Closes flex-col relative content -->
     </div> <!-- Closes flex-1 scroll container -->
 
@@ -309,22 +325,6 @@ const ITEMS_PER_PAGE = 16;
           Recargar
         </button>
       </div>
-    }
-
-    <!-- Branch / store panels -->
-    @if (showLocationsSection()) {
-      <app-locations-section
-        [activeBox]="activeBox()"
-        (setActiveBox)="activeBox.set($event)">
-      </app-locations-section>
-    }
-
-    <!-- Legal terms panel -->
-    @if (showTermsSection()) {
-      <app-terms-section
-        [activeBox]="activeBox()"
-        (setActiveBox)="activeBox.set($event)">
-      </app-terms-section>
     }
 
     <!-- Demo-only sector switcher. Hidden while a panel or overlay is open so
