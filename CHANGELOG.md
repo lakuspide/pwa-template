@@ -4,6 +4,24 @@ Cambios relevantes de la plantilla. El formato sigue
 [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y las versiones,
 [SemVer](https://semver.org/lang/es/).
 
+## [1.5.0] — 2026-10-26
+
+### Añadido
+
+- El panel de términos y condiciones organiza cada cláusula como una ficha que
+  queda fijada al hacer scroll y sobre la que se apila la siguiente, con el
+  número de sección y una marca de agua. La última ficha cierra la baraja y
+  deja debajo la fecha de actualización.
+- Enlace de la barra lateral renombrado a «Términos y condiciones», como el
+  propio panel.
+
+### Cambiado
+
+- El panel legal ya no es una columna de texto corrido: la introducción queda
+  como cabecera y las cláusulas son tarjetas numeradas de altura de página,
+  con la altura ajustada al viewport para que la baraja siempre se cierre
+  entera, también en móviles bajos.
+
 ## [1.4.0] — 2026-10-26
 
 ### Añadido

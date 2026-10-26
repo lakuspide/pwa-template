@@ -162,7 +162,7 @@ import { PanelId } from '../models/panel';
           }
           @if (site.features().terms) {
             <button (click)="openPanel.emit('terms')" class="text-left text-[var(--text-dim)] hover:text-[var(--text-sec)] text-sm transition-colors flex items-center gap-3">
-              <mat-icon class="text-[18px]">gavel</mat-icon> Aviso legal
+              <mat-icon class="text-[18px]">gavel</mat-icon> Términos y condiciones
             </button>
           }
           <p class="text-[var(--text-dim)] text-xs mt-4">{{ site.identity().appName }} v{{ site.identity().version }}</p>

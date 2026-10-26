@@ -94,7 +94,7 @@ de dos sectores.
 | `locations` | Directorio de tiendas u oficinas |
 | `about` | Panel «Sobre nosotros» y su tarjeta en la home |
 | `promo` | Oferta destacada dentro del panel «Sobre nosotros» |
-| `terms` | Panel legal y enlace en la barra lateral |
+| `terms` | Panel legal en fichas apiladas y enlace en la barra lateral |
 | `reviews` | Reseñas en la confirmación del pedido |
 
 Reglas prácticas:
@@ -174,6 +174,15 @@ asoman con más separación y menos opacidad, de modo que se intuye que la rueda
 sigue. Debajo del carrusel aparecen un punto por categoría y un contador
 (`3/9`); con una sola categoría se desactiva el arrastre y no se muestra el
 pager.
+
+### Panel legal
+
+`content.terms` (título, introducción, cláusulas y fecha) se muestra en el panel
+«Términos y condiciones». Cada cláusula es una ficha numerada que se fija al
+hacer scroll y sobre la que se apila la siguiente, así que la baraja se cierra
+con la última ficha y la fecha de actualización. La altura de cada ficha se
+adapta al viewport; si añades muchas cláusulas, las fichas se acortan para que
+la baraja siga cabiendo.
 
 ## Añadir un preset
 

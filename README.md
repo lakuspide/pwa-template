@@ -152,11 +152,11 @@ pendiente en la plantilla.
 
 ## Tipos y tests
 
-`npm test` (74 tests en 12 archivos) cubre carrito (totales, cantidades, líneas
+`npm test` (76 tests en 13 archivos) cubre carrito (totales, cantidades, líneas
 de pedido), catálogo, pedidos (incluida la latencia simulada), auth, presets y
 cambio de sector, paginación de 16 ítems, geometría del carrusel para 1–9
 categorías, el modal de producto, el checkout (éxito y error) y un smoke test
-del shell con el carrusel.
+del shell con el carrusel y la pila de fichas del panel legal.
 
 ## Despliegue
 
