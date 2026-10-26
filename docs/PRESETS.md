@@ -4,7 +4,8 @@ Un **preset** es una demo de sector completa y autocontenida: identidad, flags
 de funcionalidad, textos editoriales y un catálogo de ejemplo. La app lee todo
 desde el preset activo; ningún componente tiene copy de sector incrustado.
 
-La plantilla trae seis presets:
+La plantilla trae seis presets, con todo el copy visible en castellano (es-ES)
+y precios en euros:
 
 | Preset | Para qué | Precios | Carrito | Checkout |
 | --- | --- | --- | --- | --- |
@@ -31,6 +32,7 @@ site.identity()   // nombre, tagline, idioma, moneda, colores
 site.features()   // qué está habilitado
 site.content()    // about, promo, locations, contacto, legales
 site.catalog()    // categorías e ítems del carrusel
+site.heroImage()  // emblema del sector para la portada
 site.preset()     // id activo
 site.demoMode     // true solo en la plantilla
 ```
@@ -90,8 +92,8 @@ de dos sectores.
 | `checkout` | Drawer de pedido y envío a `OrderService` |
 | `auth` | Login mock, perfil y navegación por rol |
 | `locations` | Directorio de tiendas u oficinas |
-| `about` | Panel «About» y su tarjeta en la home |
-| `promo` | Oferta destacada dentro del panel «About» |
+| `about` | Panel «Sobre nosotros» y su tarjeta en la home |
+| `promo` | Oferta destacada dentro del panel «Sobre nosotros» |
 | `terms` | Panel legal y enlace en la barra lateral |
 | `reviews` | Reseñas en la confirmación del pedido |
 
@@ -100,7 +102,7 @@ Reglas prácticas:
 - `checkout` requiere `cart`.
 - `promo` requiere `about`.
 - Si `cart` está apagado, la ficha muestra acciones de contacto (`mailto:` y
-  `tel:`) en lugar de cantidad y «Add to Cart».
+  `tel:`) en lugar de cantidad y «Añadir al carrito».
 - Si `prices` está apagado o el ítem tiene `price: null`, no se muestra precio.
 
 ## Catálogo
@@ -110,13 +112,14 @@ Cada preset declara su catálogo con el helper `catalog()` de `presets.ts`:
 ```ts
 catalog: catalog('menu', [
   {
-    name: 'Breakfast',
-    subtitle: 'Served until 11:30',
+    name: 'Desayunos',
+    subtitle: 'Hasta las 11:30',
     icon: 'breakfast_dining',
-    description: 'Baked that morning and served with coffee or tea.',
+    description: 'Horneado esa misma mañana y servido con café o té.',
+    image: 'images/menu/breakfast.svg',
     items: [
-      { name: 'Sourdough toast', price: 6.5 },
-      { name: 'Seasonal bowl', price: 9.5 },
+      { name: 'Tostada de masa madre', price: 6.5 },
+      { name: 'Bol de temporada', price: 9.5 },
     ],
   },
 ])
@@ -124,9 +127,31 @@ catalog: catalog('menu', [
 
 - `icon` es una ligadura de Material Icons.
 - `price` es un número o `null` para catálogos informativos.
-- Las imágenes reutilizan `public/images/catalog-1…4.svg`; sustitúyelas por las
-  del proyecto.
+- `image` es el arte de la categoría, relativo a `public/`; los ítems heredan
+  esa misma imagen salvo que se les pase una propia.
 - El orden de las categorías es el orden del carrusel.
+
+### Arte por sector
+
+Cada preset trae su propio juego de ilustraciones SVG en `public/images/`:
+
+```text
+public/images/
+├── sectors/<sector>.svg        # emblema de la portada (heroImage)
+└── <sector>/
+    ├── <categoría>.svg         # una por categoría del catálogo
+    └── …
+```
+
+Los SVG son 800×800, con fondo oscuro, retícula sutil y línea marfil; el color
+de acento coincide con el del preset. Las tarjetas del carrusel, las miniaturas
+de los ítems y la cabecera de la ficha los muestran siempre sobre
+`--art-surface`, también en tema claro, para que la línea clara no se pierda.
+
+Para un proyecto nuevo, cambia los SVG por los de su marca manteniendo las
+rutas, o apunta `heroImage` e `image` a otras rutas locales o URLs. Los antiguos
+`catalog-1…4.svg` se conservan como ejemplo de imagen única para catálogos
+pequeños.
 
 ### Páginas de 16 ítems
 
@@ -154,10 +179,13 @@ pager.
 
 1. Añade el id a `PRESET_IDS` en `src/site/site.types.ts`.
 2. Crea el objeto `SitePreset` en `src/site/presets.ts` con `id`, `label`,
-   `description`, `icon`, `features`, `identity`, `content` y `catalog`.
+   `description`, `icon`, `heroImage`, `features`, `identity`, `content` y
+   `catalog`.
 3. Regístralo en `SECTOR_PRESETS`.
-4. Añade el caso a la tabla de este documento y a los ejemplos del README.
-5. Ejecuta `npm run build`, `npm test`, `npm run lint` y `npm run repo:doctor`.
+4. Añade el arte del sector en `public/images/sectors/` y
+   `public/images/<sector>/`, y enlázalo desde `heroImage` e `image`.
+5. Añade el caso a la tabla de este documento y a los ejemplos del README.
+6. Ejecuta `npm run build`, `npm test`, `npm run lint` y `npm run repo:doctor`.
 
 El generador lee los ids directamente de `presets.ts`, así que
 `--preset <nuevo-id>` funciona sin tocar `scripts/new-site.mjs`.

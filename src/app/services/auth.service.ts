@@ -3,6 +3,15 @@ import { Injectable, signal } from '@angular/core';
 /** Access levels used across the app to gate UI (not enforced server-side here). */
 export type Role = 'guest' | 'user' | 'manager' | 'operator' | 'admin';
 
+/** Visible names for the mock roles. */
+export const ROLE_LABELS: Record<Role, string> = {
+  guest: 'Invitado',
+  user: 'Cliente',
+  operator: 'Operador',
+  manager: 'Responsable',
+  admin: 'Administrador',
+};
+
 export interface UserProfile {
   email: string;
   name: string;

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-label="Estrategia de producto">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a0a0c"/>
+      <stop offset="1" stop-color="#202027"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.4" r="0.58">
+      <stop offset="0" stop-color="#5b8def" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#5b8def" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="800" fill="url(#bg)"/>
+  <rect width="800" height="800" fill="url(#grid)"/>
+  <rect width="800" height="800" fill="url(#glow)"/>
+  <g fill="none" stroke="#f4f0e8" stroke-opacity="0.9" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+
+    <circle cx="400" cy="392" r="176"/>
+    <circle cx="400" cy="392" r="124" stroke-width="4" stroke-opacity="0.35"/>
+    <path d="M400 196v392M204 392h392" stroke-width="4" stroke-opacity="0.3"/>
+    <path d="M400 252l42 140-42 42-42-42Z"/>
+    <path d="M400 532l-42-140 42-42 42 42Z"/>
+    <circle cx="400" cy="392" r="12"/>
+    <path d="M250 254l46 22M550 254l-46 22M250 530l46-22M550 530l-46-22" stroke-width="4" stroke-opacity="0.4"/>
+    
+  </g>
+  <g fill="#5b8def" fill-opacity="0.9">
+    <path d="M400 252l42 140-42 42-42-42Z" opacity="0.9"/>
+    <circle cx="400" cy="392" r="7"/>
+  </g>
+</svg>

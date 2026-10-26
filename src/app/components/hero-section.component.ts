@@ -26,8 +26,8 @@ import { SiteService } from '../services/site.service';
 
       <!-- Content -->
       <div class="relative z-10 flex flex-col items-center text-center px-6 mt-12">
-        <div class="w-16 h-16 border-2 border-dashed border-[var(--border-light)] rounded-full flex items-center justify-center mb-6 bg-[var(--bg-surface)]/50">
-          <mat-icon class="text-[var(--text-muted)] text-3xl">image</mat-icon>
+        <div class="w-24 h-24 mb-6 rounded-[28px] border border-[var(--border-main)] bg-[var(--bg-surface)]/60 p-1.5 shadow-2xl overflow-hidden">
+          <img [src]="site.heroImage()" alt="" class="w-full h-full object-cover rounded-[22px]" />
         </div>
         <p class="text-[var(--text-dim)] font-montserrat tracking-wide text-[10px] mb-4 drop-shadow-md">{{ site.identity().tagline }}</p>
         <h1 class="font-montserrat font-black text-5xl md:text-7xl leading-tight tracking-tighter text-[var(--text-main)] mb-2 drop-shadow-md whitespace-pre-line">{{ title() }}</h1>

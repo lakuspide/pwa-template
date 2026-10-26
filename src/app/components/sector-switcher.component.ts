@@ -19,7 +19,7 @@ import { IconComponent } from '../shared/icon.component';
     <button (click)="open.set(true)"
             aria-haspopup="dialog"
             [attr.aria-expanded]="open()"
-            aria-label="Switch demo sector"
+            aria-label="Cambiar de sector (demo)"
             class="fixed left-4 bottom-6 z-[900] h-12 pl-3 pr-4 rounded-full bg-[var(--bg-surface)]/85 backdrop-blur-md border border-[var(--border-main)] shadow-xl flex items-center gap-2 text-[var(--text-main)] hover:bg-[var(--bg-hover)] active:scale-95 transition-all">
       <mat-icon class="text-[20px] !w-5 !h-5 text-[var(--color-accent)]">swap_horiz</mat-icon>
       <span class="text-xs font-bold max-w-[9rem] truncate">{{ currentLabel() }}</span>
@@ -33,7 +33,7 @@ import { IconComponent } from '../shared/icon.component';
              (keydown.enter)="open.set(false)"
              role="button"
              tabindex="0"
-             aria-label="Close the sector switcher"></div>
+             aria-label="Cerrar el selector de sector"></div>
 
         <div class="relative w-full max-w-lg max-h-[85dvh] m-3 sm:m-4 bg-[var(--bg-surface)] border border-[var(--border-main)] rounded-[2rem] shadow-2xl flex flex-col overflow-hidden animate-slide-up"
              role="dialog"
@@ -41,13 +41,13 @@ import { IconComponent } from '../shared/icon.component';
              aria-labelledby="sector-switcher-title">
           <div class="flex items-start justify-between gap-4 p-6 border-b border-[var(--border-main)]">
             <div>
-              <h2 id="sector-switcher-title" class="font-montserrat font-black text-xl text-[var(--text-main)]">Demo sector</h2>
+              <h2 id="sector-switcher-title" class="font-montserrat font-black text-xl text-[var(--text-main)]">Sector de la demo</h2>
               <p class="text-[var(--text-muted)] text-xs mt-1 leading-relaxed">
-                Switch catalog, copy, prices and enabled features instantly.
+                Cambia al instante catálogo, textos, precios y funciones activas.
               </p>
             </div>
             <button (click)="open.set(false)"
-                    aria-label="Close the sector switcher"
+                    aria-label="Cerrar el selector de sector"
                     class="w-11 h-11 shrink-0 rounded-full bg-[var(--bg-hover)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors">
               <mat-icon>close</mat-icon>
             </button>
@@ -75,7 +75,7 @@ import { IconComponent } from '../shared/icon.component';
           </div>
 
           <p class="px-6 py-4 border-t border-[var(--border-main)] text-[var(--text-dim)] text-[10px] leading-relaxed">
-            Demo only. Generated projects set <code class="font-mono">DEMO_MODE = false</code> and pin one preset.
+            Solo demo. Los proyectos generados fijan <code class="font-mono">DEMO_MODE = false</code> y un único sector.
           </p>
         </div>
       </div>

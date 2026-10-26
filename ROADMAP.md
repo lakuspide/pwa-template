@@ -4,12 +4,15 @@ Lo que esta base **no** trae todavía, en orden de utilidad para un proyecto rea
 
 ## 1. Internacionalización
 
-Los textos están en inglés y centralizados solo parcialmente (`src/site/presets.ts`
-para marca, contenido y catálogo; el resto vive en las plantillas). Falta:
+La app y las demos están en castellano (es-ES), pero el copy vive en dos sitios:
+`src/site/presets.ts` (marca, contenido y catálogo) y las plantillas de los
+componentes (navegación, botones, avisos). Falta:
 
-- extraer cadenas a un diccionario (`@angular/localize` o Transloco),
+- extraer las cadenas de las plantillas a un diccionario
+  (`@angular/localize` o Transloco),
 - selector de idioma funcional (el anterior era decorativo y se eliminó),
-- formateo de fechas y moneda por locale.
+- formateo de fechas por locale (los precios ya usan el locale y la moneda del
+  preset).
 
 ## 2. Persistencia del carrito
 

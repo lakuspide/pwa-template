@@ -25,7 +25,7 @@ import { IconComponent } from '../shared/icon.component';
       } @else {
         <div class="fixed inset-0 z-[150] bg-[var(--bg-main)] overflow-y-auto pt-24 pb-12 px-4 animate-slide-up flex flex-col items-center">
           <button (click)="setActiveBox.emit(null)"
-                  aria-label="Close the terms panel"
+                  aria-label="Cerrar el panel de aviso legal"
                   class="fixed top-24 left-4 z-[200] w-12 h-12 rounded-full bg-[var(--bg-surface)] border border-[var(--border-main)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-hover)] transition-colors shadow-lg">
             <mat-icon>close</mat-icon>
           </button>

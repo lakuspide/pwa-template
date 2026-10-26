@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-label="Despensa">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a0a0c"/>
+      <stop offset="1" stop-color="#202027"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.4" r="0.58">
+      <stop offset="0" stop-color="#f77f00" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#f77f00" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="800" fill="url(#bg)"/>
+  <rect width="800" height="800" fill="url(#grid)"/>
+  <rect width="800" height="800" fill="url(#glow)"/>
+  <g fill="none" stroke="#f4f0e8" stroke-opacity="0.9" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+
+    <path d="M230 596V340c0-28 18-38 18-70h54c0 32 18 42 18 70v256Z"/>
+    <path d="M248 270h54" stroke-width="5"/>
+    <rect x="378" y="382" width="112" height="214" rx="16"/>
+    <path d="M388 382v-38h92v38" stroke-width="5"/>
+    <rect x="516" y="430" width="108" height="166" rx="16"/>
+    <path d="M526 430v-30h88v30" stroke-width="5"/>
+    <path d="M398 452h72M398 486h48M536 476h68M536 506h44" stroke-width="4" stroke-opacity="0.45"/>
+    <path d="M230 420h90" stroke-width="4" stroke-opacity="0.4"/>
+    
+  </g>
+  <g fill="#f77f00" fill-opacity="0.9">
+    <path d="M230 480h90v116h-90Z" opacity="0.45"/>
+    <rect x="398" y="520" width="72" height="54" rx="6" opacity="0.55"/>
+    <rect x="536" y="530" width="68" height="44" rx="6" opacity="0.55"/>
+  </g>
+</svg>

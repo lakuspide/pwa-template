@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-label="Inmobiliaria">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a0a0c"/>
+      <stop offset="1" stop-color="#202027"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.4" r="0.58">
+      <stop offset="0" stop-color="#c9a227" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#c9a227" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="800" fill="url(#bg)"/>
+  <rect width="800" height="800" fill="url(#grid)"/>
+  <rect width="800" height="800" fill="url(#glow)"/>
+  <g fill="none" stroke="#f4f0e8" stroke-opacity="0.9" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+
+    <path d="M174 392l178-156 178 156"/>
+    <path d="M224 366v230h256V366"/>
+    <rect x="326" y="492" width="64" height="104" rx="4"/>
+    <rect x="262" y="420" width="50" height="52" rx="4"/>
+    <rect x="432" y="420" width="50" height="52" rx="4"/>
+    <circle cx="620" cy="430" r="56"/>
+    <path d="M620 374v112M586 430h68" stroke-width="5"/>
+    <path d="M654 430h44v34h-44Z" stroke-width="5"/>
+    <path d="M654 452h18M654 464h12" stroke-width="5"/>
+    
+  </g>
+  <g fill="#c9a227" fill-opacity="0.9">
+    <rect x="326" y="492" width="64" height="22" rx="4"/>
+    <circle cx="620" cy="430" r="22" opacity="0.55"/>
+    <rect x="262" y="420" width="50" height="14" rx="3" opacity="0.7"/>
+  </g>
+</svg>

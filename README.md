@@ -15,7 +15,9 @@ su geometría al número de categorías (3, 4, 5, 6, 9…) y ofrece puntos y con
 de posición.
 
 La plantilla arranca en **modo demo**. Un proyecto generado fija un solo preset
-y arranca con su propia marca.
+y arranca con su propia marca. Todo el copy visible está en castellano (es-ES),
+con precios en euros y formato español; el código y sus comentarios siguen en
+inglés y la documentación en español.
 
 Historial de versiones: [`CHANGELOG.md`](CHANGELOG.md).
 
@@ -29,7 +31,8 @@ Historial de versiones: [`CHANGELOG.md`](CHANGELOG.md).
 
 Sin dependencias de UI externas: los iconos son la fuente Material Icons
 **autoalojada** en `src/fonts/` (se empaqueta en `dist/app/browser/media/`), y
-las imágenes del catálogo son SVG locales en `public/images/`.
+las imágenes del catálogo son SVG locales en `public/images/`, con un juego de
+arte propio por sector.
 
 ## Arrancar
 
@@ -107,6 +110,7 @@ Detalles, flags y errores frecuentes: [`docs/GITHUB.md`](docs/GITHUB.md).
 | Nombre, tagline, moneda, idioma, acentos | `src/site/site.config.ts` → `BRAND_OVERRIDES` |
 | Sector activo y modo demo | `src/site/site.config.ts` |
 | Catálogo de ejemplo (categorías, ítems, precios) | `src/site/presets.ts` |
+| Arte del sector (emblema, categorías) | `public/images/<sector>/` + `heroImage` e `image` en `src/site/presets.ts` |
 | Backend real (catálogo y pedidos) | `src/environments/environment*.ts` + `INTEGRATION.md` |
 | Marca, iconos e instalación | `public/manifest.webmanifest`, `public/icons/` (iconos de ejemplo), `src/index.html` |
 | Secciones de la home (ofertas, tiendas, legales) | `src/site/presets.ts` → `content` |
@@ -148,7 +152,7 @@ pendiente en la plantilla.
 
 ## Tipos y tests
 
-`npm test` (72 tests en 12 archivos) cubre carrito (totales, cantidades, líneas
+`npm test` (74 tests en 12 archivos) cubre carrito (totales, cantidades, líneas
 de pedido), catálogo, pedidos (incluida la latencia simulada), auth, presets y
 cambio de sector, paginación de 16 ítems, geometría del carrusel para 1–9
 categorías, el modal de producto, el checkout (éxito y error) y un smoke test

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-label="Estudio de diseño">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a0a0c"/>
+      <stop offset="1" stop-color="#202027"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.4" r="0.58">
+      <stop offset="0" stop-color="#f2a65a" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#f2a65a" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="800" fill="url(#bg)"/>
+  <rect width="800" height="800" fill="url(#grid)"/>
+  <rect width="800" height="800" fill="url(#glow)"/>
+  <g fill="none" stroke="#f4f0e8" stroke-opacity="0.9" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+
+    <rect x="218" y="196" width="292" height="232" rx="8"/>
+    <circle cx="320" cy="296" r="52"/>
+    <path d="M386 334l54-78 44 78Z"/>
+    <path d="M262 452l-58 156M466 452l58 156M364 452v156" stroke-width="6"/>
+    <path d="M540 618c-18-64-18-126 0-190h64c18 64 18 126 0 190Z"/>
+    <path d="M552 428c-8-44 10-74 20-94M572 334c22-14 42 2 36 24-22 0-36-8-36-24Z" stroke-width="5"/>
+    
+  </g>
+  <g fill="#f2a65a" fill-opacity="0.9">
+    <circle cx="320" cy="296" r="32" opacity="0.6"/>
+    <path d="M386 334l54-78 44 78Z" opacity="0.18"/>
+    <path d="M540 618c-18-64-18-126 0-190h14c-16 64-16 126 0 190Z" opacity="0.5"/>
+  </g>
+</svg>

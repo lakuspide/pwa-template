@@ -2,7 +2,8 @@ import { ChangeDetectionStrategy, Component, inject, output } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { IconComponent } from '../shared/icon.component';
 import { SiteService } from '../services/site.service';
-import { AuthService } from '../services/auth.service';
+import { AuthService, ROLE_LABELS } from '../services/auth.service';
+import type { Role } from '../services/auth.service';
 import { PanelId } from '../models/panel';
 
 /**
@@ -18,26 +19,26 @@ import { PanelId } from '../models/panel';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, IconComponent],
   template: `
-    <div class="absolute inset-0 z-[2000] flex">
+    <div class="fixed inset-0 z-[2000] flex">
       <!-- Backdrop -->
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
            (click)="closeSidebar.emit()"
            (keydown.enter)="closeSidebar.emit()"
            role="button"
            tabindex="0"
-           aria-label="Close navigation"></div>
+           aria-label="Cerrar navegación"></div>
 
       <!-- Sidebar content -->
       <div class="relative w-80 max-w-[80vw] h-full bg-[var(--bg-surface)] border-r border-[var(--border-main)] shadow-2xl flex flex-col animate-slide-in-left"
            role="dialog"
            aria-modal="true"
-           aria-label="Navigation">
+           aria-label="Navegación">
         <div class="p-6 flex justify-between items-center border-b border-[var(--border-main)]">
           <div class="flex items-center gap-2">
             <mat-icon class="text-[var(--text-muted)]">menu</mat-icon>
-            <span class="font-montserrat font-black text-xl text-[var(--text-main)]">Navigation</span>
+            <span class="font-montserrat font-black text-xl text-[var(--text-main)]">Navegación</span>
           </div>
-          <button (click)="closeSidebar.emit()" aria-label="Close navigation" class="text-[var(--text-main)]/60 hover:text-[var(--text-main)] transition-colors">
+          <button (click)="closeSidebar.emit()" aria-label="Cerrar navegación" class="text-[var(--text-main)]/60 hover:text-[var(--text-main)] transition-colors">
             <mat-icon>close</mat-icon>
           </button>
         </div>
@@ -53,28 +54,28 @@ import { PanelId } from '../models/panel';
                 </div>
                 <div>
                   <h3 class="text-[var(--text-main)] font-bold">{{ authService.currentUser()?.name }}</h3>
-                  <p class="text-[var(--color-accent)] text-xs capitalize">{{ authService.currentUser()?.role }}</p>
+                  <p class="text-[var(--color-accent)] text-xs">{{ roleLabel(authService.currentUser()?.role) }}</p>
                 </div>
               </div>
 
               @if (authService.currentUser()?.role === 'user') {
                 <div class="flex items-center justify-between bg-black/50 rounded-xl p-3 border border-[var(--border-main)]">
-                  <span class="text-[var(--text-main)]/60 text-sm">Points</span>
+                  <span class="text-[var(--text-main)]/60 text-sm">Puntos</span>
                   <span class="text-[var(--text-muted)] font-mono font-bold">{{ authService.currentUser()?.points }} pts</span>
                 </div>
               }
 
               <button (click)="logout.emit()" class="w-full mt-4 py-2 rounded-xl border border-[var(--border-main)] text-[var(--text-main)]/60 hover:text-[var(--text-main)] hover:bg-[var(--text-main)]/5 transition-colors text-sm font-bold">
-                Log out
+                Cerrar sesión
               </button>
             </div>
           } @else {
             <div class="bg-gradient-to-br from-[var(--border-main)]/10 to-transparent rounded-2xl p-6 border border-[var(--border-main)]/20 text-center">
               <mat-icon class="text-[var(--text-muted)] text-4xl mb-3">stars</mat-icon>
-              <h3 class="text-[var(--text-main)] font-bold mb-2">Join us</h3>
-              <p class="text-[var(--text-dim)] text-sm mb-4">Sign in to keep your cart and unlock account features.</p>
+              <h3 class="text-[var(--text-main)] font-bold mb-2">Únete</h3>
+              <p class="text-[var(--text-dim)] text-sm mb-4">Inicia sesión para guardar tu carrito y desbloquear funciones de cuenta.</p>
               <button (click)="openLoginModal.emit()" class="w-full py-3 rounded-xl bg-[var(--border-light)] text-[var(--text-main)] font-bold hover:bg-[var(--text-dim)] transition-colors shadow-lg">
-                Sign in
+                Iniciar sesión
               </button>
             </div>
           }
@@ -83,60 +84,60 @@ import { PanelId } from '../models/panel';
           <nav class="flex flex-col gap-2">
             @if (authService.currentUser()?.role === 'user') {
               <div class="mb-2">
-                <h4 class="text-[var(--text-dim)] text-xs font-bold mb-2 px-4">My account</h4>
+                <h4 class="text-[var(--text-dim)] text-xs font-bold mb-2 px-4">Mi cuenta</h4>
                 <a href="#" class="flex items-center gap-4 px-4 py-3 rounded-xl text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-hover)] transition-colors">
                   <mat-icon class="text-[var(--text-dim)]">settings</mat-icon>
-                  <span class="font-medium">Preferences</span>
+                  <span class="font-medium">Preferencias</span>
                 </a>
                 <a href="#" class="flex items-center gap-4 px-4 py-3 rounded-xl text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-hover)] transition-colors">
                   <mat-icon class="text-[var(--text-dim)]">history</mat-icon>
-                  <span class="font-medium">Order history</span>
+                  <span class="font-medium">Historial de pedidos</span>
                 </a>
               </div>
             }
 
             @if (authService.currentUser()?.role === 'operator' || authService.currentUser()?.role === 'admin') {
               <div class="mb-2">
-                <h4 class="text-[var(--text-dim)] text-xs font-bold mb-2 px-4">Operations</h4>
+                <h4 class="text-[var(--text-dim)] text-xs font-bold mb-2 px-4">Operaciones</h4>
                 <a href="#" class="flex items-center gap-4 px-4 py-3 rounded-xl text-[var(--text-sec)] hover:bg-[var(--bg-hover)] transition-colors">
                   <mat-icon>dashboard</mat-icon>
-                  <span class="font-bold">Order queue</span>
+                  <span class="font-bold">Cola de pedidos</span>
                 </a>
                 <a href="#" class="flex items-center gap-4 px-4 py-3 rounded-xl text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-hover)] transition-colors">
                   <mat-icon class="text-[var(--text-dim)]">inventory_2</mat-icon>
-                  <span class="font-medium">Inventory</span>
+                  <span class="font-medium">Inventario</span>
                 </a>
                 <a href="#" class="flex items-center gap-4 px-4 py-3 rounded-xl text-[var(--text-main)]/80 hover:text-[var(--text-main)] hover:bg-[var(--text-main)]/5 transition-colors">
                   <mat-icon class="text-[#ff9500]">warning</mat-icon>
-                  <span class="font-medium">Incidents</span>
+                  <span class="font-medium">Incidencias</span>
                 </a>
               </div>
             }
 
             @if (authService.currentUser()?.role === 'manager' || authService.currentUser()?.role === 'admin') {
               <div class="mb-2">
-                <h4 class="text-[var(--text-dim)] text-xs font-bold mb-2 px-4">Management</h4>
+                <h4 class="text-[var(--text-dim)] text-xs font-bold mb-2 px-4">Gestión</h4>
                 <a href="#" class="flex items-center gap-4 px-4 py-3 rounded-xl text-[var(--text-sec)] hover:bg-[var(--bg-hover)] transition-colors">
                   <mat-icon>manage_accounts</mat-icon>
-                  <span class="font-bold">Team access</span>
+                  <span class="font-bold">Acceso del equipo</span>
                 </a>
                 <a href="#" class="flex items-center gap-4 px-4 py-3 rounded-xl text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-hover)] transition-colors">
                   <mat-icon class="text-[var(--text-dim)]">fact_check</mat-icon>
-                  <span class="font-medium">Reports</span>
+                  <span class="font-medium">Informes</span>
                 </a>
               </div>
             }
 
             @if (authService.currentUser()?.role === 'admin') {
               <div class="mb-2">
-                <h4 class="text-[var(--text-dim)] text-xs font-bold mb-2 px-4">System</h4>
+                <h4 class="text-[var(--text-dim)] text-xs font-bold mb-2 px-4">Sistema</h4>
                 <a href="#" class="flex items-center gap-4 px-4 py-3 rounded-xl text-[var(--text-sec)] hover:bg-[var(--bg-hover)] transition-colors">
                   <mat-icon>dns</mat-icon>
-                  <span class="font-bold">Integrations</span>
+                  <span class="font-bold">Integraciones</span>
                 </a>
                 <a href="#" class="flex items-center gap-4 px-4 py-3 rounded-xl text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-hover)] transition-colors">
                   <mat-icon class="text-[var(--text-dim)]">settings_applications</mat-icon>
-                  <span class="font-medium">App settings</span>
+                  <span class="font-medium">Ajustes de la app</span>
                 </a>
               </div>
             }
@@ -147,21 +148,21 @@ import { PanelId } from '../models/panel';
         <!-- Common links -->
         <div class="p-6 border-t border-[var(--border-main)] flex flex-col gap-3">
           <button (click)="openPanel.emit('catalog')" class="text-left text-[var(--text-dim)] hover:text-[var(--text-sec)] text-sm transition-colors flex items-center gap-3">
-            <mat-icon class="text-[18px]">storefront</mat-icon> Catalog
+            <mat-icon class="text-[18px]">storefront</mat-icon> Catálogo
           </button>
           @if (site.features().about) {
             <button (click)="openPanel.emit('about')" class="text-left text-[var(--text-dim)] hover:text-[var(--text-sec)] text-sm transition-colors flex items-center gap-3">
-              <mat-icon class="text-[18px]">info</mat-icon> About us
+              <mat-icon class="text-[18px]">info</mat-icon> Sobre nosotros
             </button>
           }
           @if (site.features().locations && site.content().locations.length > 0) {
             <button (click)="openPanel.emit(null)" class="text-left text-[var(--text-dim)] hover:text-[var(--text-sec)] text-sm transition-colors flex items-center gap-3">
-              <mat-icon class="text-[18px]">contact_support</mat-icon> Stores & contact
+              <mat-icon class="text-[18px]">contact_support</mat-icon> Tiendas y contacto
             </button>
           }
           @if (site.features().terms) {
             <button (click)="openPanel.emit('terms')" class="text-left text-[var(--text-dim)] hover:text-[var(--text-sec)] text-sm transition-colors flex items-center gap-3">
-              <mat-icon class="text-[18px]">gavel</mat-icon> Legal terms
+              <mat-icon class="text-[18px]">gavel</mat-icon> Aviso legal
             </button>
           }
           <p class="text-[var(--text-dim)] text-xs mt-4">{{ site.identity().appName }} v{{ site.identity().version }}</p>
@@ -173,6 +174,11 @@ import { PanelId } from '../models/panel';
 export class SidebarMenuComponent {
   readonly site = inject(SiteService);
   readonly authService = inject(AuthService);
+
+  /** Human-readable role for the mock profile badge. */
+  roleLabel(role: Role | undefined): string {
+    return role ? ROLE_LABELS[role] : '';
+  }
 
   closeSidebar = output<void>();
   logout = output<void>();

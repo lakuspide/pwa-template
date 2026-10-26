@@ -25,7 +25,7 @@ import { IconComponent } from '../shared/icon.component';
                  (keydown.enter)="setActiveBox.emit(location.id)"
                  tabindex="0"
                  role="button"
-                 [attr.aria-label]="'Open ' + location.name"
+                 [attr.aria-label]="'Abrir ' + location.name"
                  class="bg-[var(--bg-surface)]/60 border border-[var(--border-main)] rounded-2xl p-4 backdrop-blur-md hover:bg-[var(--bg-hover)] transition-all cursor-pointer group flex flex-col items-center text-center shadow-lg relative overflow-hidden">
               <div class="absolute inset-0 bg-[var(--bg-main)] opacity-20 group-hover:opacity-30 transition-opacity"></div>
               <div class="absolute inset-0 bg-gradient-to-b from-transparent to-[#ffffff]/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -37,7 +37,7 @@ import { IconComponent } from '../shared/icon.component';
       } @else if (selectedLocation(); as location) {
         <div class="fixed inset-0 z-[150] bg-[var(--bg-main)] overflow-y-auto pt-24 pb-12 px-4 animate-slide-up flex flex-col items-center">
           <button (click)="setActiveBox.emit(null)"
-                  [attr.aria-label]="'Close ' + location.name"
+                  [attr.aria-label]="'Cerrar ' + location.name"
                   class="fixed top-24 left-4 z-[200] w-12 h-12 rounded-full bg-[var(--bg-surface)] border border-[var(--border-main)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-hover)] transition-colors shadow-lg">
             <mat-icon>close</mat-icon>
           </button>
@@ -58,7 +58,7 @@ import { IconComponent } from '../shared/icon.component';
               <div class="flex items-center gap-4 p-4 bg-[var(--bg-surface)]/50 rounded-2xl border border-[var(--border-light)]">
                 <mat-icon class="text-[var(--text-muted)]">schedule</mat-icon>
                 <div>
-                  <p class="text-[var(--text-sec)]">{{ location.hoursLabel ?? 'Opening hours' }}</p>
+                  <p class="text-[var(--text-sec)]">{{ location.hoursLabel ?? 'Horario' }}</p>
                   <p class="text-[var(--text-muted)] text-sm">{{ location.hours }}</p>
                 </div>
               </div>

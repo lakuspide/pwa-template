@@ -26,6 +26,8 @@ export class SiteService {
   readonly content = computed(() => this.configState().content);
   readonly catalog = computed(() => this.configState().catalog);
   readonly preset = computed(() => this.configState().preset);
+  /** Sector emblem for the intro screen. */
+  readonly heroImage = computed(() => this.configState().heroImage);
 
   /** True only in the template demo; generated projects pin a preset. */
   readonly demoMode = SITE_CONFIG.demoMode;

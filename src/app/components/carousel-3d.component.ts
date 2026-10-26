@@ -60,12 +60,12 @@ export interface DisplayCard {
                [style.pointer-events]="cardStyles()[i]?.opacity === 0 ? 'none' : 'auto'">
             
             <!-- Card -->
-            <div class="w-full h-full relative rounded-[24px] bg-[var(--bg-surface)] border border-[var(--border-main)] flex flex-col items-center justify-end p-6 cursor-pointer overflow-hidden transition-all duration-500 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/50 shadow-2xl group/card"
+            <div class="w-full h-full relative rounded-[24px] bg-[var(--art-surface)] border border-[var(--art-border)] flex flex-col items-center justify-end p-6 cursor-pointer overflow-hidden transition-all duration-500 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/50 shadow-2xl group/card"
                  role="button"
                  tabindex="0"
-                 [attr.aria-label]="'Select ' + card.title"
+                 [attr.aria-label]="'Seleccionar ' + card.title"
                  [ngClass]="{
-                   'border-[var(--border-light)] shadow-lg': cardStyles()[i]?.isFront,
+                   'border-white/20 shadow-lg': cardStyles()[i]?.isFront,
                    'animate-vibrate-expand': selectedItemId() === card.id
                  }"
                  (click)="onCardSelect(card, i)"
@@ -77,11 +77,11 @@ export interface DisplayCard {
               
               <!-- Background Image -->
               @if (card.image) {
-                <img [src]="card.image" alt="" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 grayscale opacity-30"
-                     [ngClass]="{'scale-110': cardStyles()[i]?.isFront, 'scale-100 opacity-20': !cardStyles()[i]?.isFront}"
+                <img [src]="card.image" alt="" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 opacity-100"
+                     [ngClass]="{'scale-110': cardStyles()[i]?.isFront, 'scale-100 opacity-65': !cardStyles()[i]?.isFront}"
                      referrerpolicy="no-referrer" />
                 <!-- Dark Gradient Overlay for text readability -->
-                <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-surface)] via-[var(--bg-surface)]/70 to-[var(--bg-surface)]/20 transition-opacity duration-500"
+                <div class="absolute inset-0 bg-gradient-to-t from-[var(--art-surface)] via-[var(--art-surface)]/45 to-transparent transition-opacity duration-500"
                      [ngClass]="{'opacity-90': !cardStyles()[i]?.isFront, 'opacity-100': cardStyles()[i]?.isFront}"></div>
               }
 
@@ -93,39 +93,39 @@ export interface DisplayCard {
                 
                 @if (card.icon && viewState() === 'categories') {
                   <mat-icon class="text-4xl !w-10 !h-10 transition-colors duration-500 mb-2"
-                            [style.color]="cardStyles()[i]?.isFront ? 'var(--text-sec)' : 'var(--text-dim)'"
+                            [style.color]="cardStyles()[i]?.isFront ? 'var(--art-text-muted)' : 'var(--art-text-dim)'"
                             [ngClass]="{'drop-shadow-md': cardStyles()[i]?.isFront}">
                     {{ card.icon }}
                   </mat-icon>
                 }
                 
                 <h2 class="font-montserrat font-black text-2xl tracking-wide transition-all duration-500"
-                    [style.color]="cardStyles()[i]?.isFront ? 'var(--text-main)' : 'var(--text-muted)'"
+                    [style.color]="cardStyles()[i]?.isFront ? 'var(--art-text)' : 'var(--art-text-muted)'"
                     [ngClass]="{'drop-shadow-md scale-105': cardStyles()[i]?.isFront}">
                   {{ card.title }}
                 </h2>
 
                 @if (card.meta) {
-                  <p class="text-[10px] uppercase tracking-[0.18em] text-[var(--text-dim)] transition-opacity duration-500 drop-shadow-md"
+                  <p class="text-[10px] uppercase tracking-[0.18em] text-[var(--art-text-dim)] transition-opacity duration-500 drop-shadow-md"
                      [ngClass]="{'opacity-100': cardStyles()[i]?.isFront, 'opacity-0': !cardStyles()[i]?.isFront}">
                     {{ card.meta }}
                   </p>
                 }
 
                 @if (card.price) {
-                  <span class="text-[var(--text-muted)] font-mono text-xl font-bold mt-1 transition-all duration-500 drop-shadow-md"
+                  <span class="text-[var(--art-text)] font-mono text-xl font-bold mt-1 transition-all duration-500 drop-shadow-md"
                         [ngClass]="{'scale-110': cardStyles()[i]?.isFront}">{{ card.price }}</span>
                 }
 
                 @if (card.subtitle) {
-                  <p class="text-[var(--text-dim)] text-sm mt-2 leading-relaxed px-2 transition-all duration-500 line-clamp-2 drop-shadow-md"
+                  <p class="text-[var(--art-text-dim)] text-sm mt-2 leading-relaxed px-2 transition-all duration-500 line-clamp-2 drop-shadow-md"
                      [ngClass]="{'opacity-100': cardStyles()[i]?.isFront, 'opacity-0': !cardStyles()[i]?.isFront}">{{ card.subtitle }}</p>
                 }
               </div>
 
               <!-- Minimalist flicker indicator -->
               <div class="absolute bottom-4 h-0.5 rounded-full transition-all duration-500 z-10"
-                   [style.background-color]="cardStyles()[i]?.isFront ? 'var(--color-accent)' : 'color-mix(in srgb, var(--text-main) 20%, transparent)'"
+                   [style.background-color]="cardStyles()[i]?.isFront ? 'var(--color-accent)' : 'rgba(255,255,255,0.22)'"
                    [style.width]="cardStyles()[i]?.isFront ? '3rem' : '2rem'"
                    [ngClass]="{'shadow-[0_0_15px_rgba(10,132,255,0.7)]': cardStyles()[i]?.isFront}"></div>
             </div>
@@ -139,7 +139,7 @@ export interface DisplayCard {
           @for (card of cards(); track card.id; let i = $index) {
             <button type="button"
                     class="p-1.5 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]/60"
-                    [attr.aria-label]="'Go to ' + card.title"
+                    [attr.aria-label]="'Ir a ' + card.title"
                     [attr.aria-current]="frontPosition() === i ? 'true' : null"
                     (click)="goToCard(i, $event)">
               <span class="block h-1.5 rounded-full transition-all duration-300"

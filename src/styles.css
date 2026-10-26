@@ -56,6 +56,16 @@
     --text-muted: #98989d;     /* systemGray */
     --text-dim: #636366;       /* systemGray2 */
 
+    /* Fixed dark canvas for the bundled sector artwork. The SVGs paint their
+       own dark background and off-white line work, so any surface that shows
+       them (carousel cards, item thumbnails, detail headers) uses this palette
+       in both themes instead of following the page background. */
+    --art-surface: #16161a;
+    --art-border: rgba(255, 255, 255, 0.1);
+    --art-text: #f5f4f1;
+    --art-text-muted: rgba(245, 244, 241, 0.62);
+    --art-text-dim: rgba(245, 244, 241, 0.4);
+
     /* Accent pair. `SiteService` writes --accent-dark / --accent-light from the
        active preset, so the demo can re-brand without touching CSS. */
     --accent-dark: #0a84ff;
@@ -77,6 +87,14 @@
     --text-dim: #aeaeb2;       /* systemGray2 */
 
     --color-accent: var(--accent-light);
+
+    /* The artwork palette stays dark in light mode: the SVG line work is
+       off-white and would disappear on a white card. */
+    --art-surface: #16161a;
+    --art-border: rgba(255, 255, 255, 0.1);
+    --art-text: #f5f4f1;
+    --art-text-muted: rgba(245, 244, 241, 0.62);
+    --art-text-dim: rgba(245, 244, 241, 0.4);
 
     /* Carousel side cards are dimmed in dark mode; in light mode the same
        brightness(0.5) would paint a grey band behind the front card. */

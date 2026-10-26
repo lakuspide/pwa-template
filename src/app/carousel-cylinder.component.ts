@@ -96,7 +96,7 @@ const ITEMS_PER_PAGE = 16;
                   <button (click)="goBack(); $event.stopPropagation()" 
                           class="flex items-center gap-2 bg-[var(--bg-surface)]/80 backdrop-blur-md border border-[var(--border-main)] px-8 py-4 rounded-full hover:bg-[var(--bg-hover)] transition-all text-[var(--text-main)] shadow-lg active:scale-95">
                     <mat-icon class="text-[var(--text-muted)]">arrow_back</mat-icon>
-                    <span class="text-sm font-montserrat font-black text-[var(--text-muted)]">Back</span>
+                    <span class="text-sm font-montserrat font-black text-[var(--text-muted)]">Volver</span>
                   </button>
                 </div>
               }
@@ -154,11 +154,11 @@ const ITEMS_PER_PAGE = 16;
                          role="button"
                          tabindex="0"
                          [attr.data-catalog-item]="item.id"
-                         [attr.aria-label]="'Open ' + item.title"
+                         [attr.aria-label]="'Abrir ' + item.title"
                          (click)="onCardSelect(item)"
                          (keydown.enter)="onCardSelect(item)">
-                      <div class="w-full aspect-[4/3] bg-[var(--bg-surface)] rounded-lg mb-1.5 overflow-hidden relative border border-[var(--border-main)]">
-                         <img [src]="item.image" [alt]="item.title" draggable="false" class="absolute inset-0 w-full h-full object-cover opacity-50 grayscale">
+                      <div class="w-full aspect-[4/3] bg-[var(--art-surface)] rounded-lg mb-1.5 overflow-hidden relative border border-[var(--art-border)]">
+                         <img [src]="item.image" [alt]="item.title" draggable="false" class="absolute inset-0 w-full h-full object-cover">
                       </div>
                       <span class="text-xs font-bold text-center text-[var(--text-sec)] line-clamp-2 leading-tight w-full">{{item.title}}</span>
                       <span class="text-[10px] text-[var(--text-muted)] mt-1">{{item.price}}</span>
@@ -174,10 +174,10 @@ const ITEMS_PER_PAGE = 16;
         @if (pageCount() > 1) {
           <div class="flex-none h-11 flex items-center justify-center gap-2"
                role="group"
-               aria-label="Item pages">
+               aria-label="Páginas de artículos">
             <button type="button"
                     class="w-9 h-9 rounded-full bg-[var(--bg-surface)]/70 border border-[var(--border-main)] flex items-center justify-center text-[var(--text-muted)] active:scale-95 transition-all"
-                    aria-label="Previous page"
+                    aria-label="Página anterior"
                     (click)="previousPage()">
               <mat-icon>chevron_left</mat-icon>
             </button>
@@ -185,7 +185,7 @@ const ITEMS_PER_PAGE = 16;
             @for (page of paginatedItems(); track $index; let pageIndex = $index) {
               <button type="button"
                       class="p-1.5 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]/60"
-                      [attr.aria-label]="'Go to page ' + (pageIndex + 1)"
+                      [attr.aria-label]="'Ir a la página ' + (pageIndex + 1)"
                       [attr.aria-current]="currentPage() === pageIndex ? 'true' : null"
                       (click)="goToPage(pageIndex)">
                 <span class="block h-1.5 w-1.5 rounded-full transition-all duration-300"
@@ -198,7 +198,7 @@ const ITEMS_PER_PAGE = 16;
 
             <button type="button"
                     class="w-9 h-9 rounded-full bg-[var(--bg-surface)]/70 border border-[var(--border-main)] flex items-center justify-center text-[var(--text-muted)] active:scale-95 transition-all"
-                    aria-label="Next page"
+                    aria-label="Página siguiente"
                     (click)="nextPage()">
               <mat-icon>chevron_right</mat-icon>
             </button>
@@ -214,120 +214,124 @@ const ITEMS_PER_PAGE = 16;
             <mat-icon class="text-[14px] !w-3.5 !h-3.5 animate-bounce">
               touch_app
             </mat-icon>
-            Tap to view items
+            Toca para ver los artículos
           </p>
           <div class="w-px h-5 bg-gradient-to-b from-[var(--text-dim)]/60 to-transparent"></div>
         </div>
       }
     </div> <!-- Closes system-section -->
 
-      <!-- Product Detail Modal -->
-      @defer (when isProductModalOpen()) {
-        @if (isProductModalOpen() && selectedProduct()) {
-          <app-product-modal 
-            [product]="selectedProduct()" 
-            (closeModal)="closeProductModal()"
-            (addedToCart)="onAddedToCart()">
-          </app-product-modal>
-        }
-      }
-
-      <!-- Toast Notification -->
-      @if (showToast()) {
-        <div class="absolute top-12 left-1/2 -translate-x-1/2 z-[2000] bg-[var(--border-main)] text-[var(--text-main)] px-6 py-3 rounded-full font-medium shadow-lg flex items-center gap-3 animate-fade-in pointer-events-none"
-             role="status" aria-live="polite">
-          <mat-icon>check_circle</mat-icon>
-          <span>Added to cart</span>
-        </div>
-      }
-
-      <!-- Floating Action Buttons -->
-      <div class="absolute bottom-8 right-8 z-[500] flex flex-col gap-4">
-        <!-- Cart Indicator -->
-        @if (site.features().cart && cartService.totalItems() > 0 && (activeBox() === null || activeBox() === 'catalog')) {
-          <button (click)="showCheckout.set(true)"
-                  aria-label="Open cart"
-                  class="relative w-14 h-14 rounded-full bg-[var(--bg-hover)] border border-[var(--border-main)] flex items-center justify-center text-[var(--text-main)] hover:bg-[var(--border-main)] transition-all shadow-xl pointer-events-auto group">
-            <mat-icon class="text-[var(--text-muted)] group-hover:scale-110 transition-transform">shopping_cart</mat-icon>
-            <span class="absolute -top-2 -right-2 bg-[var(--text-dim)] text-[var(--text-main)] text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shadow-lg border-2 border-[var(--bg-main)]">
-              {{ cartService.totalItems() }}
-            </span>
-          </button>
-        }
-      </div>
-
-      <!-- Checkout Overlay (System Log) -->
-      @defer (when showCheckout() && site.features().checkout) {
-        @if (showCheckout() && site.features().checkout) {
-          <app-checkout-drawer 
-            (closeModal)="closeCheckout()"
-            (requestLogin)="openLoginModal()"
-            (orderConfirmed)="onOrderConfirmed()">
-          </app-checkout-drawer>
-        }
-      }
-
-      <!-- Sidebar navigation -->
-      @defer (when showSidebar()) {
-        @if (showSidebar()) {
-          <app-sidebar-menu
-            (closeSidebar)="showSidebar.set(false)"
-            (logout)="logout()"
-            (openLoginModal)="openLoginModal()"
-            (openPanel)="openPanel($event)">
-          </app-sidebar-menu>
-        }
-      }
-
-      <!-- Login Modal (Mock) -->
-      @defer (when showLoginModal() && site.features().auth) {
-        @if (showLoginModal() && site.features().auth) {
-          <app-login-modal
-            (closeModal)="showLoginModal.set(false)"
-            (login)="mockLogin($event.email, $event.role)">
-          </app-login-modal>
-        }
-      }
-
-
       } <!-- Closes activeBox() === null || activeBox() === 'catalog' -->
-
-      <!-- Service worker update prompt (only when a new build is waiting) -->
-      @if (pwaUpdateService.updateReady()) {
-        <div class="absolute top-12 left-1/2 -translate-x-1/2 z-[2100] bg-[var(--bg-surface)] border border-[var(--border-main)] text-[var(--text-main)] pl-4 pr-2 py-2 rounded-full shadow-xl flex items-center gap-3 animate-fade-in pointer-events-auto">
-          <mat-icon class="text-[18px] !w-5 !h-5 text-[var(--color-accent)]">system_update</mat-icon>
-          <span class="text-xs font-medium">New version available</span>
-          <button (click)="pwaUpdateService.applyUpdate()"
-                  [disabled]="pwaUpdateService.applying()"
-                  class="px-4 py-1.5 rounded-full bg-[var(--text-main)] text-[var(--bg-main)] text-xs font-bold disabled:opacity-50">
-            Reload
-          </button>
-        </div>
-      }
-
-      <!-- Branch / store panels -->
-      @if (showLocationsSection()) {
-        <app-locations-section
-          [activeBox]="activeBox()"
-          (setActiveBox)="activeBox.set($event)">
-        </app-locations-section>
-      }
-
-      <!-- Legal terms panel -->
-      @if (showTermsSection()) {
-        <app-terms-section
-          [activeBox]="activeBox()"
-          (setActiveBox)="activeBox.set($event)">
-        </app-terms-section>
-      }
-
-      <!-- Demo-only sector switcher -->
-      @if (site.demoMode) {
-        <app-sector-switcher (presetChanged)="onPresetChanged()"></app-sector-switcher>
-      }
 
     </div> <!-- Closes flex-col relative content -->
     </div> <!-- Closes flex-1 scroll container -->
+
+
+    <!-- Product Detail Modal -->
+    @defer (when isProductModalOpen()) {
+      @if (isProductModalOpen() && selectedProduct()) {
+        <app-product-modal 
+          [product]="selectedProduct()" 
+          (closeModal)="closeProductModal()"
+          (addedToCart)="onAddedToCart()">
+        </app-product-modal>
+      }
+    }
+
+    <!-- Toast Notification -->
+    @if (showToast()) {
+      <div class="absolute top-12 left-1/2 -translate-x-1/2 z-[2000] bg-[var(--border-main)] text-[var(--text-main)] px-6 py-3 rounded-full font-medium shadow-lg flex items-center gap-3 animate-fade-in pointer-events-none"
+           role="status" aria-live="polite">
+        <mat-icon>check_circle</mat-icon>
+        <span>Añadido al carrito</span>
+      </div>
+    }
+
+    <!-- Floating Action Buttons -->
+    <div class="absolute bottom-8 right-8 z-[500] flex flex-col gap-4">
+      <!-- Cart Indicator -->
+      @if (site.features().cart && cartService.totalItems() > 0 && (activeBox() === null || activeBox() === 'catalog')) {
+        <button (click)="showCheckout.set(true)"
+                aria-label="Abrir carrito"
+                class="relative w-14 h-14 rounded-full bg-[var(--bg-hover)] border border-[var(--border-main)] flex items-center justify-center text-[var(--text-main)] hover:bg-[var(--border-main)] transition-all shadow-xl pointer-events-auto group">
+          <mat-icon class="text-[var(--text-muted)] group-hover:scale-110 transition-transform">shopping_cart</mat-icon>
+          <span class="absolute -top-2 -right-2 bg-[var(--text-dim)] text-[var(--text-main)] text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shadow-lg border-2 border-[var(--bg-main)]">
+            {{ cartService.totalItems() }}
+          </span>
+        </button>
+      }
+    </div>
+
+    <!-- Checkout Overlay (System Log) -->
+    @defer (when showCheckout() && site.features().checkout) {
+      @if (showCheckout() && site.features().checkout) {
+        <app-checkout-drawer 
+          (closeModal)="closeCheckout()"
+          (requestLogin)="openLoginModal()"
+          (orderConfirmed)="onOrderConfirmed()">
+        </app-checkout-drawer>
+      }
+    }
+
+    <!-- Sidebar navigation -->
+    @defer (when showSidebar()) {
+      @if (showSidebar()) {
+        <app-sidebar-menu
+          (closeSidebar)="showSidebar.set(false)"
+          (logout)="logout()"
+          (openLoginModal)="openLoginModal()"
+          (openPanel)="openPanel($event)">
+        </app-sidebar-menu>
+      }
+    }
+
+    <!-- Login Modal (Mock) -->
+    @defer (when showLoginModal() && site.features().auth) {
+      @if (showLoginModal() && site.features().auth) {
+        <app-login-modal
+          (closeModal)="showLoginModal.set(false)"
+          (login)="mockLogin($event.email, $event.role)">
+        </app-login-modal>
+      }
+    }
+
+
+
+
+    <!-- Service worker update prompt (only when a new build is waiting) -->
+    @if (pwaUpdateService.updateReady()) {
+      <div class="absolute top-12 left-1/2 -translate-x-1/2 z-[2100] bg-[var(--bg-surface)] border border-[var(--border-main)] text-[var(--text-main)] pl-4 pr-2 py-2 rounded-full shadow-xl flex items-center gap-3 animate-fade-in pointer-events-auto">
+        <mat-icon class="text-[18px] !w-5 !h-5 text-[var(--color-accent)]">system_update</mat-icon>
+        <span class="text-xs font-medium">Nueva versión disponible</span>
+        <button (click)="pwaUpdateService.applyUpdate()"
+                [disabled]="pwaUpdateService.applying()"
+                class="px-4 py-1.5 rounded-full bg-[var(--text-main)] text-[var(--bg-main)] text-xs font-bold disabled:opacity-50">
+          Recargar
+        </button>
+      </div>
+    }
+
+    <!-- Branch / store panels -->
+    @if (showLocationsSection()) {
+      <app-locations-section
+        [activeBox]="activeBox()"
+        (setActiveBox)="activeBox.set($event)">
+      </app-locations-section>
+    }
+
+    <!-- Legal terms panel -->
+    @if (showTermsSection()) {
+      <app-terms-section
+        [activeBox]="activeBox()"
+        (setActiveBox)="activeBox.set($event)">
+      </app-terms-section>
+    }
+
+    <!-- Demo-only sector switcher. Hidden while a panel or overlay is open so
+         it never covers the panel's own content. -->
+    @if (site.demoMode && activeBox() === null && !showCheckout() && !isProductModalOpen() && !showSidebar() && !showLoginModal()) {
+      <app-sector-switcher (presetChanged)="onPresetChanged()"></app-sector-switcher>
+    }
 
   </section> <!-- Closes catalog section -->
 </div> <!-- Closes main container -->
@@ -381,7 +385,7 @@ export class CarouselCylinderComponent {
       id: c.id,
       title: c.name,
       subtitle: c.subtitle,
-      meta: c.items.length === 1 ? '1 item' : `${c.items.length} items`,
+      meta: c.items.length === 1 ? '1 artículo' : `${c.items.length} artículos`,
       icon: c.icon,
       image: c.image,
       originalData: c

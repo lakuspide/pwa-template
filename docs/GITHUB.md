@@ -68,8 +68,9 @@ Si el repo va a tu cuenta personal, omite `--owner`: se usa la cuenta autenticad
 
 > `--preset` se aplica de verdad: escribe `ACTIVE_PRESET` y `BRAND_OVERRIDES` en
 > `src/site/site.config.ts` y pone `DEMO_MODE = false`. El proyecto arranca con
-> el catálogo, las secciones y los flags del sector elegido, sin selector de demo.
-> Detalle: [`PRESETS.md`](PRESETS.md).
+> el catálogo, el arte, las secciones y los flags del sector elegido, sin
+> selector de demo, y conserva el copy en castellano. Detalle:
+> [`PRESETS.md`](PRESETS.md).
 
 ## Opciones
 

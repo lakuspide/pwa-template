@@ -4,6 +4,38 @@ Cambios relevantes de la plantilla. El formato sigue
 [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y las versiones,
 [SemVer](https://semver.org/lang/es/).
 
+## [1.4.0] — 2026-10-26
+
+### Añadido
+
+- Todo el copy visible de la app y de los seis presets está en castellano
+  (es-ES): navegación, carrito, checkout, paneles, avisos y catálogos. Los
+  precios usan el formato español (`24,00 €`) y la tipografía editorial emplea
+  comillas «».
+- 28 ilustraciones SVG propias por sector en `public/images/`: un emblema para
+  la portada (`heroImage`) y una imagen por categoría. Las fichas de ítem
+  heredan el arte de su categoría.
+- Tokens `--art-surface`, `--art-border`, `--art-text`, `--art-text-muted` y
+  `--art-text-dim` para mostrar el arte oscuro con línea marfil en ambos temas.
+
+### Cambiado
+
+- La identidad base pasa a «Plantilla Base» / «Plantilla», con `lang: 'es'`,
+  `locale: 'es-ES'` y prefijo de almacenamiento `plantilla-base`.
+- Las tarjetas del carrusel, las miniaturas y la cabecera de la ficha usan la
+  paleta de arte en vez de `grayscale opacity-30`, que borraba el dibujo.
+- El selector de sector se oculta mientras hay un panel u overlay abierto para
+  no tapar su contenido.
+
+### Corregido
+
+- Los overlays de checkout, barra lateral y login usan `position: fixed` y
+  quedan dentro del viewport y por encima de la cabecera; los enlaces del pie de
+  la barra lateral vuelven a ser alcanzables en móvil y escritorio.
+- El modal de login se limita a `100dvh` y hace scroll cuando no cabe.
+- Las filas del carrito y los controles de cantidad usan la paleta de arte: el
+  texto ya no queda negro sobre fondo oscuro en tema claro.
+
 ## [1.3.0] — 2026-10-26
 
 ### Añadido

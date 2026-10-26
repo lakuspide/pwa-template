@@ -51,7 +51,7 @@ export class OrderService {
       return { ok: true, orderId: response?.orderId ?? this.createOrderId() };
     } catch (err) {
       logger.error('OrderService.submitOrder failed', err);
-      return { ok: false, error: 'We could not send your order. Please try again.' };
+      return { ok: false, error: 'No pudimos enviar tu pedido. Inténtalo de nuevo.' };
     }
   }
 

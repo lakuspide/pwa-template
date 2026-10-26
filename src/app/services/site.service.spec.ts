@@ -28,7 +28,8 @@ describe('SiteService', () => {
   });
 
   it('formats prices with the active locale and currency', () => {
-    expect(service.formatPrice(12.5)).toContain('12.50');
+    expect(service.formatPrice(12.5)).toContain('12,50');
+    expect(service.formatPrice(12.5)).toContain('€');
     expect(service.formatPrice(null)).toBe('');
   });
 

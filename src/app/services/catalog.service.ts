@@ -55,7 +55,7 @@ export class CatalogService {
       );
       this.remoteCategories.set(data);
     } catch (err) {
-      this.error.set('Could not load the catalog. Please try again.');
+      this.error.set('No se pudo cargar el catálogo. Inténtalo de nuevo.');
       logger.error('CatalogService.load failed', err);
     } finally {
       this.isLoading.set(false);

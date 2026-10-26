@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-label="Casas y viviendas">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a0a0c"/>
+      <stop offset="1" stop-color="#202027"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.4" r="0.58">
+      <stop offset="0" stop-color="#c9a227" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#c9a227" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="800" fill="url(#bg)"/>
+  <rect width="800" height="800" fill="url(#grid)"/>
+  <rect width="800" height="800" fill="url(#glow)"/>
+  <g fill="none" stroke="#f4f0e8" stroke-opacity="0.9" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+
+    <path d="M206 420l194-168 194 168"/>
+    <path d="M256 394v234h288V394"/>
+    <path d="M400 252v-64h48v100" />
+    <rect x="370" y="526" width="64" height="102" rx="4"/>
+    <rect x="292" y="450" width="54" height="54" rx="4"/>
+    <rect x="454" y="450" width="54" height="54" rx="4"/>
+    <path d="M594 628V514M594 514c-32-22-64 0-52 30 10 26 42 20 52-30ZM594 514c32-22 64 0 52 30-10 26-42 20-52-30Z" stroke-width="5"/>
+    <path d="M168 628h472" stroke-width="4" stroke-opacity="0.35"/>
+    <path d="M206 514h-44M184 492v44M592 628h0" stroke-width="4" stroke-opacity="0.45"/>
+    
+  </g>
+  <g fill="#c9a227" fill-opacity="0.9">
+    <rect x="370" y="526" width="16" height="102" rx="4"/>
+    <rect x="292" y="450" width="54" height="16" rx="3" opacity="0.8"/>
+    <rect x="454" y="450" width="54" height="16" rx="3" opacity="0.8"/>
+  </g>
+</svg>

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-label="Interiores y espacios">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a0a0c"/>
+      <stop offset="1" stop-color="#202027"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.4" r="0.58">
+      <stop offset="0" stop-color="#f2a65a" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#f2a65a" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="800" fill="url(#bg)"/>
+  <rect width="800" height="800" fill="url(#grid)"/>
+  <rect width="800" height="800" fill="url(#glow)"/>
+  <g fill="none" stroke="#f4f0e8" stroke-opacity="0.9" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+
+    <path d="M158 640h484" stroke-width="5" stroke-opacity="0.4"/>
+    <path d="M204 640V212h392v428"/>
+    <path d="M204 212l44-36h348l-44 36" stroke-width="5" stroke-opacity="0.5"/>
+
+    <rect x="266" y="272" width="204" height="252" rx="4"/>
+    <path d="M368 272v252M266 398h204" stroke-width="5" stroke-opacity="0.55"/>
+
+    <path d="M558 212v96" stroke-width="4" stroke-opacity="0.5"/>
+    <path d="M520 308h76l-18 44h-40Z"/>
+
+    <path d="M264 596V560h216v36" stroke-width="6"/>
+    <path d="M282 596v44M462 596v44M282 560h180" stroke-width="4" stroke-opacity="0.45"/>
+
+    <path d="M556 640v-84" stroke-width="5"/>
+    <path d="M556 556c-30-8-40-40-26-62 14-22 42-20 52 2 10 22-2 52-26 60Z" stroke-width="5"/>
+    <path d="M556 578c22-4 34 12 30 34" stroke-width="4" stroke-opacity="0.5"/>
+    <path d="M532 640h48" stroke-width="5"/>
+
+  </g>
+  <g fill="#f2a65a" fill-opacity="0.9">
+
+    <path d="M266 398h204v126H266Z" opacity="0.10"/>
+    <path d="M520 308h76l-18 44h-40Z" opacity="0.55"/>
+    <path d="M290 640h164v-28H290Z" opacity="0.22"/>
+
+  </g>
+</svg>

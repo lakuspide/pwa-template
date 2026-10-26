@@ -144,6 +144,8 @@ export interface SitePreset {
   description: string;
   /** Material Icons ligature used by the switcher. */
   icon: string;
+  /** Sector emblem shown on the intro screen. */
+  heroImage: string;
   features: SiteFeatures;
   identity: SiteIdentity;
   content: SiteContent;
@@ -154,6 +156,8 @@ export interface SitePreset {
 export interface SiteConfig {
   preset: SectorPresetId;
   demoMode: boolean;
+  /** Sector emblem shown on the intro screen. */
+  heroImage: string;
   identity: SiteIdentity;
   features: SiteFeatures;
   content: SiteContent;

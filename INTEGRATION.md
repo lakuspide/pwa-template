@@ -49,7 +49,7 @@ Reglas:
   o `null` para catálogos informativos.
 - `icon` es un nombre de ligadura de Material Icons (`category`, `widgets`…).
 - `id` debe ser estable: el carrito y las líneas de pedido se apoyan en él.
-- `image` admite ruta relativa (`images/catalog-1.svg`) o URL absoluta.
+- `image` admite ruta relativa (`images/boutique/ceramics.svg`) o URL absoluta.
 
 `CatalogService` expone `isLoading` y `error`; conecta un skeleton o un aviso de
 reintento a esas señales si tu API puede tardar. En modo mock el catálogo sale

@@ -15,10 +15,10 @@ import { SiteService } from '../services/site.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, IconComponent, PricePipe],
   template: `
-    <div class="absolute inset-0 z-[2000] flex flex-col bg-[var(--bg-main)]/90 backdrop-blur-xl animate-fade-in pointer-events-auto"
+    <div class="fixed inset-0 z-[2000] flex flex-col bg-[var(--bg-main)]/90 backdrop-blur-xl animate-fade-in pointer-events-auto"
          role="dialog"
          aria-modal="true"
-         aria-label="Order summary and checkout"
+         aria-label="Resumen y pedido"
          (pointerdown)="$event.stopPropagation()"
          (pointermove)="$event.stopPropagation()"
          (pointerup)="$event.stopPropagation()">
@@ -27,7 +27,7 @@ import { SiteService } from '../services/site.service';
         
         @if (!orderSuccess()) {
           <div class="flex justify-between items-center mb-8">
-            <h2 class="font-montserrat font-black text-3xl text-[var(--text-main)]">Summary</h2>
+            <h2 class="font-montserrat font-black text-3xl text-[var(--text-main)]">Resumen</h2>
             <button (click)="closeModal.emit()" class="w-12 h-12 rounded-full bg-[var(--text-main)]/5 flex items-center justify-center text-[var(--text-main)] hover:bg-[var(--text-main)]/20 transition-colors" [disabled]="isConfirming()">
               <mat-icon>close</mat-icon>
             </button>
@@ -37,7 +37,7 @@ import { SiteService } from '../services/site.service';
             @if (cartService.items().length === 0) {
               <div class="h-full flex flex-col items-center justify-center text-[var(--text-main)]/40">
                 <mat-icon class="text-6xl mb-4 opacity-50">remove_shopping_cart</mat-icon>
-                <p class="font-montserrat text-lg">Your list is empty.</p>
+                <p class="font-montserrat text-lg">Tu lista está vacía.</p>
               </div>
             } @else {
               @for (item of cartService.items(); track item.id) {
@@ -50,21 +50,21 @@ import { SiteService } from '../services/site.service';
                   
                   <!-- Content -->
                   <div class="relative z-10 flex-1 flex flex-col justify-center pr-4">
-                    <h4 class="text-[var(--text-main)] font-bold text-lg leading-tight mb-1 drop-shadow-md">{{ item.name }}</h4>
-                    <p class="text-[var(--text-main)]/70 text-sm line-clamp-2 drop-shadow-md">{{ item.description }}</p>
+                    <h4 class="text-[var(--art-text)] font-bold text-lg leading-tight mb-1 drop-shadow-md">{{ item.name }}</h4>
+                    <p class="text-[var(--art-text-muted)] text-sm line-clamp-2 drop-shadow-md">{{ item.description }}</p>
                   </div>
                   
                   <!-- Counter -->
                   <div class="relative z-10 flex flex-col items-center gap-2 bg-black/60 backdrop-blur-md p-3 rounded-xl border border-[var(--border-main)] min-w-[80px]">
                     <div class="flex items-center gap-2">
-                      <button (click)="cartService.updateQuantity(item.id, 1)" class="w-8 h-8 rounded-full bg-[var(--text-main)]/10 flex items-center justify-center text-[var(--text-main)] hover:bg-[var(--text-main)]/20 transition-colors" [disabled]="isConfirming()">
+                      <button (click)="cartService.updateQuantity(item.id, 1)" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-[var(--art-text)] hover:bg-white/20 transition-colors" [disabled]="isConfirming()">
                         <mat-icon class="text-sm">add</mat-icon>
                       </button>
-                      <button (click)="decreaseCartQuantity(item)" class="w-8 h-8 rounded-full bg-[var(--text-main)]/10 flex items-center justify-center text-[var(--text-main)] hover:bg-[var(--text-main)]/20 transition-colors" [disabled]="isConfirming()">
+                      <button (click)="decreaseCartQuantity(item)" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-[var(--art-text)] hover:bg-white/20 transition-colors" [disabled]="isConfirming()">
                         <mat-icon class="text-sm">remove</mat-icon>
                       </button>
                     </div>
-                    <span class="text-[var(--text-main)] font-bold text-xl">{{ item.quantity }}</span>
+                    <span class="text-[var(--art-text)] font-bold text-xl">{{ item.quantity }}</span>
                   </div>
                 </div>
               }
@@ -78,15 +78,15 @@ import { SiteService } from '../services/site.service';
                 <div class="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center mb-6">
                   <mat-icon class="text-red-400 text-3xl !w-8 !h-8">delete_outline</mat-icon>
                 </div>
-                <h3 class="text-[var(--text-main)] font-montserrat font-bold text-xl mb-2">Remove Item?</h3>
-                <p class="text-[var(--text-main)]/60 text-sm mb-8">Are you sure you want to remove "{{ itemToRemove()?.name }}" from your selection?</p>
+                <h3 class="text-[var(--text-main)] font-montserrat font-bold text-xl mb-2">¿Quitar este artículo?</h3>
+                <p class="text-[var(--text-main)]/60 text-sm mb-8">¿Seguro que quieres quitar «{{ itemToRemove()?.name }}» de tu selección?</p>
                 
                 <div class="flex gap-4 w-full">
                   <button (click)="cancelRemove()" class="flex-1 py-3 rounded-xl bg-[var(--text-main)]/5 text-[var(--text-main)] font-bold hover:bg-[var(--text-main)]/10 transition-colors">
-                    Keep
+                    Mantener
                   </button>
                   <button (click)="confirmRemove()" class="flex-1 py-3 rounded-xl bg-red-500/80 text-[var(--text-main)] font-bold hover:bg-red-500 transition-colors shadow-[0_0_15px_rgba(239,68,68,0.3)]">
-                    Remove
+                    Quitar
                   </button>
                 </div>
               </div>
@@ -95,7 +95,7 @@ import { SiteService } from '../services/site.service';
 
           <div class="mt-8 pt-8 border-t border-[var(--border-main)] transition-opacity duration-300" [class.opacity-30]="isConfirming()">
             <div class="flex justify-between items-end mb-6">
-              <span class="text-[var(--text-main)]/60 font-montserrat text-sm">Estimated Total</span>
+              <span class="text-[var(--text-main)]/60 font-montserrat text-sm">Total estimado</span>
               <span class="text-[var(--text-main)] font-mono text-4xl font-bold">{{ cartService.totalPrice() | appPrice: site.identity().currency : site.identity().locale }}</span>
             </div>
             
@@ -105,10 +105,10 @@ import { SiteService } from '../services/site.service';
                       [disabled]="cartService.items().length === 0 || isConfirming()">
                 @if (isConfirming()) {
                   <mat-icon class="animate-spin">sync</mat-icon>
-                  Processing…
+                  Procesando…
                 } @else {
                   <mat-icon>check_circle</mat-icon>
-                  Confirm Order
+                  Confirmar pedido
                 }
               </button>
 
@@ -119,7 +119,7 @@ import { SiteService } from '../services/site.service';
               <button (click)="closeModal.emit()"
                       [disabled]="isConfirming()"
                       class="w-full py-4 rounded-full text-[var(--text-muted)] font-medium hover:text-[var(--text-main)] hover:bg-[var(--bg-hover)] transition-all text-base">
-                Continue
+                Seguir explorando
               </button>
             </div>
           </div>
@@ -127,7 +127,7 @@ import { SiteService } from '../services/site.service';
           <!-- Success State / Tracker -->
           <div class="absolute inset-0 flex flex-col animate-fade-in z-10 bg-[var(--bg-surface)] overflow-y-auto touch-pan-y custom-scrollbar p-8">
             <button (click)="closeModal.emit()"
-                    aria-label="Close the order confirmation"
+                    aria-label="Cerrar la confirmación del pedido"
                     class="self-end w-12 h-12 rounded-full bg-[var(--text-main)]/5 flex items-center justify-center text-[var(--text-main)] hover:bg-[var(--text-main)]/20 transition-colors">
               <mat-icon>close</mat-icon>
             </button>
@@ -136,9 +136,9 @@ import { SiteService } from '../services/site.service';
               <div class="w-20 h-20 rounded-full bg-[var(--border-main)] flex items-center justify-center mb-6 shadow-lg">
                 <mat-icon class="text-[var(--text-sec)] text-4xl">check_circle</mat-icon>
               </div>
-              <h2 class="font-montserrat font-black text-3xl text-[var(--text-main)] mb-2 text-center">Order received</h2>
+              <h2 class="font-montserrat font-black text-3xl text-[var(--text-main)] mb-2 text-center">Pedido recibido</h2>
               @if (orderId()) {
-                <p class="text-[var(--text-dim)] text-sm text-center">Order #{{ orderId() }}</p>
+                <p class="text-[var(--text-dim)] text-sm text-center">Pedido n.º {{ orderId() }}</p>
               }
             </div>
 
@@ -154,33 +154,33 @@ import { SiteService } from '../services/site.service';
                   <div class="w-10 h-10 rounded-full bg-[var(--text-muted)] flex items-center justify-center text-[var(--bg-main)]">
                     <mat-icon class="text-sm">check</mat-icon>
                   </div>
-                  <span class="text-[var(--text-muted)] text-[10px] font-bold">Confirmed</span>
+                  <span class="text-[var(--text-muted)] text-[10px] font-bold">Confirmado</span>
                 </div>
                 <div class="relative z-10 flex flex-col items-center gap-2">
                   <div class="w-10 h-10 rounded-full bg-[var(--bg-hover)] border-2 border-[var(--border-light)] flex items-center justify-center text-[var(--text-muted)] animate-pulse">
                     <mat-icon class="text-sm">sync</mat-icon>
                   </div>
-                  <span class="text-[var(--text-main)] text-[10px] font-bold">Preparing</span>
+                  <span class="text-[var(--text-main)] text-[10px] font-bold">En preparación</span>
                 </div>
                 <div class="relative z-10 flex flex-col items-center gap-2 opacity-30">
                   <div class="w-10 h-10 rounded-full bg-[var(--bg-hover)] border-2 border-[var(--border-main)] flex items-center justify-center text-[var(--text-dim)]">
                     <mat-icon class="text-sm">flag</mat-icon>
                   </div>
-                  <span class="text-[var(--text-dim)] text-[10px] font-bold">Ready</span>
+                  <span class="text-[var(--text-dim)] text-[10px] font-bold">Listo</span>
                 </div>
               </div>
-              <p class="text-[var(--text-muted)] text-center text-sm italic">"Your request is being processed."</p>
+              <p class="text-[var(--text-muted)] text-center text-sm italic">«Tu solicitud se está procesando.»</p>
             </div>
 
             <!-- Reviews (static placeholders, replace with real data) -->
             @if (site.features().reviews) {
             <div class="mb-10">
               <div class="flex items-center justify-between mb-6">
-                <h3 class="text-[var(--text-main)] font-bold text-sm">Reviews</h3>
+                <h3 class="text-[var(--text-main)] font-bold text-sm">Opiniones</h3>
                 <div class="flex items-center gap-1 text-[var(--text-muted)]">
                   <mat-icon class="text-sm">star</mat-icon>
                   <span class="text-[var(--text-main)] font-bold text-xs">4.9</span>
-                  <span class="text-[var(--text-dim)] text-[10px] ml-1">(+6000 reviews)</span>
+                  <span class="text-[var(--text-dim)] text-[10px] ml-1">(+6000 opiniones)</span>
                 </div>
               </div>
               
@@ -196,8 +196,8 @@ import { SiteService } from '../services/site.service';
                     <mat-icon class="text-xs">star</mat-icon>
                     <mat-icon class="text-xs">star</mat-icon>
                   </div>
-                  <p class="text-[var(--text-sec)] text-sm italic mb-3">"Generic review placeholder text. This is a great example of a wireframe review."</p>
-                  <p class="text-[var(--text-dim)] text-[10px] font-bold">— User A</p>
+                  <p class="text-[var(--text-sec)] text-sm italic mb-3">«Texto de opinión de ejemplo. Un buen ejemplo de reseña para el wireframe.»</p>
+                  <p class="text-[var(--text-dim)] text-[10px] font-bold">— Usuaria A</p>
                 </div>
 
                 <div class="bg-[var(--bg-hover)]/50 p-5 rounded-2xl border border-[var(--border-main)] relative overflow-hidden group">
@@ -211,8 +211,8 @@ import { SiteService } from '../services/site.service';
                     <mat-icon class="text-xs">star</mat-icon>
                     <mat-icon class="text-xs">star</mat-icon>
                   </div>
-                  <p class="text-[var(--text-sec)] text-sm italic mb-3">"Another generic review. The layout is clean and the user experience is fantastic."</p>
-                  <p class="text-[var(--text-dim)] text-[10px] font-bold">— User B</p>
+                  <p class="text-[var(--text-sec)] text-sm italic mb-3">«Otra opinión genérica. El diseño es limpio y la experiencia de usuario, fantástica.»</p>
+                  <p class="text-[var(--text-dim)] text-[10px] font-bold">— Usuario B</p>
                 </div>
               </div>
             </div>
@@ -223,29 +223,29 @@ import { SiteService } from '../services/site.service';
             @if (!authService.currentUser()) {
               <div class="bg-gradient-to-br from-[var(--border-main)]/20 to-transparent p-8 rounded-[2rem] border border-[var(--border-main)] text-center mb-10">
                 <mat-icon class="text-[var(--text-muted)] text-4xl mb-4">stars</mat-icon>
-                <h3 class="text-[var(--text-main)] font-black text-xl mb-3">Join Us</h3>
-                <p class="text-[var(--text-muted)] text-sm mb-6">Register now to unlock more features and save your progress.</p>
+                <h3 class="text-[var(--text-main)] font-black text-xl mb-3">Únete</h3>
+                <p class="text-[var(--text-muted)] text-sm mb-6">Regístrate ahora para desbloquear más funciones y guardar tu progreso.</p>
                 <button (click)="requestLogin.emit()" class="w-full py-4 rounded-xl bg-[var(--border-light)] text-[var(--text-main)] font-black hover:bg-[var(--text-dim)] transition-all shadow-lg">
-                  Register
+                  Registrarse
                 </button>
               </div>
             } @else {
               <div class="bg-[var(--bg-hover)]/50 p-6 rounded-[2rem] border border-[var(--border-main)] text-center mb-10">
                 <mat-icon class="text-[var(--text-muted)] text-3xl mb-2">check_circle</mat-icon>
-                <p class="text-[var(--text-main)] font-bold">Order saved to your account</p>
-                <p class="text-[var(--text-dim)] text-xs mt-1">You can find it in your order history from the sidebar.</p>
+                <p class="text-[var(--text-main)] font-bold">Pedido guardado en tu cuenta</p>
+                <p class="text-[var(--text-dim)] text-xs mt-1">Puedes encontrarlo en tu historial de pedidos, en el menú lateral.</p>
               </div>
             }
             } @else {
               <div class="bg-[var(--bg-hover)]/50 p-6 rounded-[2rem] border border-[var(--border-main)] text-center mb-10">
                 <mat-icon class="text-[var(--text-muted)] text-3xl mb-2">receipt_long</mat-icon>
-                <p class="text-[var(--text-main)] font-bold">No account needed</p>
-                <p class="text-[var(--text-dim)] text-xs mt-1">Keep your order reference in case you need to contact us.</p>
+                <p class="text-[var(--text-main)] font-bold">No hace falta cuenta</p>
+                <p class="text-[var(--text-dim)] text-xs mt-1">Guarda la referencia del pedido por si necesitas contactarnos.</p>
               </div>
             }
 
             <button (click)="closeModal.emit()" class="w-full py-4 text-[var(--text-dim)] font-bold text-xs hover:text-[var(--text-sec)] transition-colors mb-8">
-              Back to Home
+              Volver al inicio
             </button>
           </div>
         }
@@ -306,7 +306,7 @@ export class CheckoutDrawerComponent {
     const user = this.authService.currentUser();
     const result = await this.orderService.submitOrder({
       customer: {
-        name: user?.name ?? 'Guest',
+        name: user?.name ?? 'Invitado',
         email: user?.email ?? 'guest@example.com',
       },
       lines: this.cartService.orderLines(),
@@ -317,7 +317,7 @@ export class CheckoutDrawerComponent {
     this.isConfirming.set(false);
 
     if (!result.ok) {
-      this.orderError.set(result.error ?? 'Something went wrong. Please try again.');
+      this.orderError.set(result.error ?? 'Algo salió mal. Inténtalo de nuevo.');
       return;
     }
 
