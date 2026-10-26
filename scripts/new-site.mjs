@@ -135,10 +135,14 @@ async function main() {
     if (options.domain) {
       console.log(`→ Enganchando el dominio ${options.domain}`);
       const domain = await attachDomain(options.pagesProject, options.domain, credentials);
+      const dnsLabel = {
+        created: 'CNAME creado',
+        updated: 'CNAME actualizado',
+        exists: 'CNAME ya existente',
+        skipped: 'DNS gestionado fuera de la zona',
+      }[domain.dns] ?? domain.dns;
       console.log(
-        domain.status === 'exists'
-          ? '  (el dominio ya estaba enganchado)'
-          : '  dominio enganchado',
+        `  ${domain.status === 'exists' ? 'dominio ya enganchado' : 'dominio enganchado'} · ${dnsLabel}`,
       );
     }
 

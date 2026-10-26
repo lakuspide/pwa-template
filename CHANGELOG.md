@@ -4,6 +4,26 @@ Cambios relevantes de la plantilla. El formato sigue
 [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y las versiones,
 [SemVer](https://semver.org/lang/es/).
 
+## [1.3.0] — 2026-10-26
+
+### Añadido
+
+- Almacén permanente de credenciales de Cloudflare en
+  `~/.config/lakuspide/cloudflare.env` (permisos 600, fuera del repositorio).
+  `npm run deploy`, `repo:doctor` y el generador lo leen sin volver a pedir el
+  token.
+- Despliegue automático de la demo en cada push a `main` mediante GitHub
+  Actions.
+- El generador crea el proyecto de Cloudflare Pages de cada proyecto, despliega
+  la primera versión, engancha `<slug>.lakuspide.cloud`, crea el CNAME, guarda
+  los secretos en el repo nuevo y escribe su workflow de despliegue.
+- `--deploy` / `--no-deploy` y `--pages-project` en el generador.
+
+### Cambiado
+
+- `wrangler` pasa a ser dependencia de desarrollo, para que el despliegue local
+  funcione también en proyectos generados.
+
 ## [1.2.0] — 2026-10-25
 
 ### Añadido

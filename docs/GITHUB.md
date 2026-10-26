@@ -59,6 +59,10 @@ Resultado:
 - Repo privado `https://github.com/lakuspide/cafe-central`.
 - `main` con el commit inicial, descripción, homepage y topics.
 - `.template.json` con el commit exacto de la plantilla.
+- Proyecto de Cloudflare Pages `<slug>` con la primera versión desplegada.
+- Dominio `--domain` enganchado y CNAME creado en la zona de Lakuspide.
+- Secretos `CLOUDFLARE_API_TOKEN` y `CLOUDFLARE_ACCOUNT_ID` en el repo, y un
+  workflow que vuelve a desplegar en cada push a `main`.
 
 Si el repo va a tu cuenta personal, omite `--owner`: se usa la cuenta autenticada.
 
@@ -75,7 +79,9 @@ Si el repo va a tu cuenta personal, omite `--owner`: se usa la cuenta autenticad
 | `--slug <slug>` | Carpeta y nombre por defecto del repo |
 | `--owner <cuenta>` | Usuario u organización de GitHub |
 | `--repo-name <nombre>` | Nombre del repo si difiere del slug |
-| `--domain <dominio>` | Homepage del repo y dominio previsto |
+| `--domain <dominio>` | Homepage del repo y dominio a enganchar |
+| `--pages-project <n>` | Nombre del proyecto de Pages (por defecto, el slug) |
+| `--deploy` / `--no-deploy` | Fuerza u omite el despliegue en Cloudflare Pages |
 | `--preset <nombre>` | `boutique`, `menu`, `showcase`, `services`, `real-estate`, `market` |
 | `--short-name <texto>` | Nombre corto del manifest |
 | `--tagline <texto>` | Tagline de la app |
@@ -99,7 +105,9 @@ Si el repo va a tu cuenta personal, omite `--owner`: se usa la cuenta autenticad
 4. Ejecuta `npm install` y `npm run build` (salvo `--skip-build`).
 5. Inicializa `main` y crea el commit inicial.
 6. Crea el repo, hace push y ajusta homepage, topics, issues, wiki y projects.
-7. Imprime el repo, la carpeta y los siguientes comandos.
+7. Crea el proyecto de Pages, despliega `dist/app/browser`, engancha el dominio,
+   guarda los secretos en el repo y escribe su workflow de despliegue.
+8. Imprime el repo, la carpeta, la URL y los siguientes comandos.
 
 ## Errores frecuentes
 
@@ -111,6 +119,8 @@ Si el repo va a tu cuenta personal, omite `--owner`: se usa la cuenta autenticad
 | `repository already exists` | Cambia `--repo-name` o borra el repo |
 | `La carpeta ya existe y no está vacía` | Usa otro `--dir` o vacía la carpeta |
 | `La plantilla tiene cambios sin commitear` | Haz commit o usa `--allow-dirty` (la copia sale de `HEAD`) |
+| `Falta CLOUDFLARE_API_TOKEN` | Guarda las credenciales en `~/.config/lakuspide/cloudflare.env` o usa `--no-deploy` |
+| El dominio queda `pending` | El CNAME tarda unos minutos; revisa la zona en Cloudflare |
 | El build falla | El proyecto queda en disco sin repo; corrige y vuelve a ejecutar |
 
 ## Seguridad

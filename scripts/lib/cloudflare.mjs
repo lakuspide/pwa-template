@@ -69,8 +69,8 @@ export async function ensurePagesProject(name, credentials) {
 }
 
 /**
- * Attaches `domain` to the project. Cloudflare creates the CNAME when the zone
- * belongs to the same account. An existing domain is not an error.
+ * Attaches `domain` to the project and points its CNAME at the Pages host.
+ * An existing domain or record is not an error.
  */
 export async function attachDomain(projectName, domain, credentials) {
   const creds = credentials ?? loadCloudflareCredentials();
@@ -79,16 +79,65 @@ export async function attachDomain(projectName, domain, credentials) {
     { method: 'POST', credentials: creds, body: { name: domain } },
   );
 
-  if (result.ok) {
-    return { status: 'attached', domain };
+  let status = 'attached';
+  if (!result.ok) {
+    const messages = (result.data?.errors ?? []).map((error) => error.message).join(' ');
+    if (!/already|exists|duplicate/i.test(messages)) {
+      throw new Error(cloudflareError(`No se pudo enganchar ${domain}`, result));
+    }
+    status = 'exists';
   }
 
-  const messages = (result.data?.errors ?? []).map((error) => error.message).join(' ');
-  if (/already|exists|duplicate/i.test(messages)) {
-    return { status: 'exists', domain };
+  const dns = await ensureCname(domain, `${projectName}.pages.dev`, creds);
+  return { status, domain, dns };
+}
+
+/**
+ * Creates (or fixes) the CNAME that Pages needs for a custom domain inside the
+ * configured zone. Returns `skipped` when the domain belongs to another zone.
+ */
+export async function ensureCname(domain, target, credentials) {
+  const creds = credentials ?? loadCloudflareCredentials();
+  if (!creds.zoneId || !domain.endsWith(`.${creds.zoneName}`)) {
+    return 'skipped';
   }
 
-  throw new Error(cloudflareError(`No se pudo enganchar ${domain}`, result));
+  const listed = await api(
+    `/zones/${creds.zoneId}/dns_records?name=${encodeURIComponent(domain)}`,
+    { credentials: creds },
+  );
+  if (!listed.ok) {
+    throw new Error(cloudflareError(`No se pudo leer el DNS de ${domain}`, listed));
+  }
+
+  const existing = (listed.data.result ?? []).find(
+    (record) => record.type === 'CNAME' || record.type === 'A' || record.type === 'AAAA',
+  );
+
+  if (existing) {
+    if (existing.type === 'CNAME' && existing.content === target) {
+      return 'exists';
+    }
+    const updated = await api(`/zones/${creds.zoneId}/dns_records/${existing.id}`, {
+      method: 'PATCH',
+      credentials: creds,
+      body: { type: 'CNAME', name: domain, content: target, proxied: true, ttl: 1 },
+    });
+    if (!updated.ok) {
+      throw new Error(cloudflareError(`No se pudo actualizar el DNS de ${domain}`, updated));
+    }
+    return 'updated';
+  }
+
+  const created = await api(`/zones/${creds.zoneId}/dns_records`, {
+    method: 'POST',
+    credentials: creds,
+    body: { type: 'CNAME', name: domain, content: target, proxied: true, ttl: 1 },
+  });
+  if (!created.ok) {
+    throw new Error(cloudflareError(`No se pudo crear el CNAME de ${domain}`, created));
+  }
+  return 'created';
 }
 
 /** Uploads `dist/app/browser` to the project. */

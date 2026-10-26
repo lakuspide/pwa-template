@@ -79,9 +79,10 @@ Detalle completo: [`docs/PRESETS.md`](docs/PRESETS.md).
 
 ## Crear un proyecto nuevo
 
-Cada proyecto es independiente: su carpeta, su repo de GitHub y su despliegue.
-El generador comprueba el entorno, copia la plantilla, aplica la marca y publica
-el repositorio automáticamente.
+Cada proyecto es independiente: su carpeta, su repo de GitHub, su proyecto de
+Cloudflare Pages y su dominio. El generador comprueba el entorno, copia la
+plantilla, aplica la marca, publica el repositorio y **despliega la primera
+versión** con el token guardado en `~/.config/lakuspide/cloudflare.env`.
 
 ```bash
 npm run repo:doctor        # comprueba gh, scopes, Git y la plantilla
@@ -95,7 +96,7 @@ npm run new -- \
 
 Sin `--owner` se usa la cuenta autenticada en `gh`. El repo se crea privado por
 defecto; añade `--public` si debe ser público. Para un proyecto solo local:
-`--no-github`.
+`--no-github`; para no desplegar: `--no-deploy`.
 
 Detalles, flags y errores frecuentes: [`docs/GITHUB.md`](docs/GITHUB.md).
 

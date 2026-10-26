@@ -72,7 +72,7 @@ const BASE_IDENTITY: SiteIdentity = {
   lang: 'en',
   locale: 'en-US',
   currency: 'EUR',
-  version: '1.2.0',
+  version: '1.3.0',
   themeColorDark: '#050505',
   themeColorLight: '#f2f2f7',
   backgroundColor: '#050505',
