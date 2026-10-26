@@ -15,6 +15,16 @@
 
 
 
+/* The 3D carousel cards peek outside the viewport on purpose. Clip that
+   overflow instead of making a horizontal scroller: `hidden` still lets a
+   focus or `scrollIntoView` pan the box sideways, which shifted the whole page
+   and left a dead gap on the right. `clip` removes the scroll port entirely;
+   the `hidden` line is the fallback for browsers without `clip`. */
+@utility scroll-x-locked {
+  overflow-x: hidden;
+  overflow-x: clip;
+}
+
 @theme {
   /* System font stack: resolves to San Francisco on Apple devices,
      and the closest native equivalent everywhere else. This is the

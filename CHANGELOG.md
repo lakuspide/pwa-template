@@ -4,6 +4,20 @@ Cambios relevantes de la plantilla. El formato sigue
 [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y las versiones,
 [SemVer](https://semver.org/lang/es/).
 
+## [1.5.1] — 2026-10-26
+
+### Corregido
+
+- La pantalla principal ya no se puede desplazar en horizontal. Las tarjetas
+  laterales del carrusel 3D sobresalen a propósito del viewport y convertían el
+  contenedor con scroll en un scroller horizontal: un gesto lateral dejaba el
+  contenido desplazado y aparecía un hueco muerto a la derecha. Ahora el
+  contenedor recorta ese desbordamiento y solo permite el gesto vertical.
+- La rejilla de artículos usa 2 columnas en móvil y 4 desde tablet, sin el paso
+  intermedio de 3 (16 no es múltiplo de 3). Además queda centrada y con ancho
+  máximo en tablet y escritorio, en vez de ocupar todo el ancho con tarjetas
+  gigantes.
+
 ## [1.5.0] — 2026-10-26
 
 ### Añadido

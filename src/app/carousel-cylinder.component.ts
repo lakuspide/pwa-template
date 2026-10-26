@@ -65,7 +65,7 @@ const ITEMS_PER_PAGE = 16;
         </div>
 
         <!-- MAIN SCROLLABLE/FIXED CONTENT -->
-        <div class="flex-1 w-full relative z-10 transition-all duration-500 scroll-smooth"
+        <div class="flex-1 w-full relative z-10 transition-all duration-500 scroll-smooth scroll-x-locked touch-pan-y"
              [class.overflow-y-auto]="activeBox() === null"
              [class.overflow-hidden]="activeBox() !== null">
              
@@ -146,11 +146,15 @@ const ITEMS_PER_PAGE = 16;
                (pointerup)="onPagePointerUp($event)"
                (pointercancel)="onPagePointerUp($event)">
             @for (page of paginatedItems(); track $index) {
-              <div class="min-w-full h-full flex-shrink-0 px-2 pt-28 pb-4 overflow-y-auto overscroll-contain touch-pan-y"
+              <div class="w-full min-w-0 h-full flex-shrink-0 px-4 pt-28 pb-4 overflow-y-auto scroll-x-locked overscroll-contain touch-pan-y"
                    [attr.data-page-index]="$index">
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 content-start pb-24">
+                <!-- 2 cards per row on phones, 4 from tablet up (16 is a
+                     multiple of both). A wrapping row instead of a grid so the
+                     last, incomplete row stays centered; the block itself is
+                     capped and centered on tablets and desktops. -->
+                <div class="flex flex-wrap justify-center gap-2 pb-24 w-full max-w-5xl mx-auto">
                   @for (item of page; track item.id) {
-                    <div class="bg-[var(--text-main)]/5 border border-[var(--border-main)] rounded-xl p-2 flex flex-col items-center cursor-pointer hover:bg-[var(--text-main)]/10 transition-colors active:scale-95 min-w-0"
+                    <div class="bg-[var(--text-main)]/5 border border-[var(--border-main)] rounded-xl p-2 flex flex-col items-center cursor-pointer hover:bg-[var(--text-main)]/10 transition-colors active:scale-95 min-w-0 grow-0 shrink-0 basis-[calc(50%_-_0.25rem)] md:basis-[calc(25%_-_0.375rem)]"
                          role="button"
                          tabindex="0"
                          [attr.data-catalog-item]="item.id"
