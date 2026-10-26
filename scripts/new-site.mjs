@@ -179,7 +179,7 @@ function buildOptions(args) {
   const noGithub = Boolean(args['no-github']);
   const owner = String(args.owner ?? '').trim();
   const shortName = String(args['short-name'] ?? deriveShortName(name)).trim();
-  const tagline = String(args.tagline ?? 'Digital catalog').trim();
+  const tagline = String(args.tagline ?? 'Catálogo digital').trim();
   const description = String(
     args.description ?? `${name} — PWA de catálogo digital`,
   ).trim();

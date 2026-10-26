@@ -15,6 +15,8 @@
   <rect width="800" height="800" fill="url(#bg)"/>
   <rect width="800" height="800" fill="url(#grid)"/>
   <rect width="800" height="800" fill="url(#glow)"/>
+  <!-- Inset the drawing so the tall card crop (and its 1.1 zoom) keeps every stroke inside the frame. -->
+  <g class="art-frame" transform="translate(400 400) scale(0.9) translate(-400 -400)">
   <g fill="none" stroke="#f4f0e8" stroke-opacity="0.9" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
 
     <ellipse cx="360" cy="536" rx="196" ry="66"/>
@@ -32,5 +34,7 @@
     <circle cx="470" cy="480" r="14"/>
     <path d="M540 430h82v14h-82Z" opacity="0.65"/>
     <path d="M318 494h84" stroke-width="6" stroke-linecap="round"/>
+  </g>
+
   </g>
 </svg>

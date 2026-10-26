@@ -14,7 +14,9 @@ Cambios relevantes de la plantilla. El formato sigue
   comillas «».
 - 28 ilustraciones SVG propias por sector en `public/images/`: un emblema para
   la portada (`heroImage`) y una imagen por categoría. Las fichas de ítem
-  heredan el arte de su categoría.
+  heredan el arte de su categoría. El dibujo va inscrito en el centro del
+  lienzo, de modo que la tarjeta vertical (con su zoom del 10 %) nunca corta
+  un trazo.
 - Tokens `--art-surface`, `--art-border`, `--art-text`, `--art-text-muted` y
   `--art-text-dim` para mostrar el arte oscuro con línea marfil en ambos temas.
 
@@ -35,6 +37,8 @@ Cambios relevantes de la plantilla. El formato sigue
 - El modal de login se limita a `100dvh` y hace scroll cuando no cabe.
 - Las filas del carrito y los controles de cantidad usan la paleta de arte: el
   texto ya no queda negro sobre fondo oscuro en tema claro.
+- El tagline por defecto de un proyecto generado es «Catálogo digital», no
+  «Digital catalog».
 
 ## [1.3.0] — 2026-10-26
 
