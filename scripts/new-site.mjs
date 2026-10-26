@@ -20,9 +20,17 @@ import {
   createRepo,
   currentUser,
   ghAvailable,
+  ghBin,
   repoExists,
   resolveOwner,
 } from './lib/github.mjs';
+import { loadCloudflareCredentials } from './lib/credentials.mjs';
+import {
+  attachDomain,
+  deployDirectory,
+  ensurePagesProject,
+  setRepoSecrets,
+} from './lib/cloudflare.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const TEMPLATE_ROOT = path.resolve(__dirname, '..');
@@ -39,7 +47,10 @@ const TEMPLATE_ONLY_FILES = [
 const FACTORY_ONLY_FILES = [
   '.github/workflows/deploy-demo.yml',
   'scripts/new-site.mjs',
+  'scripts/deploy.mjs',
   'scripts/lib/github.mjs',
+  'scripts/lib/cloudflare.mjs',
+  'scripts/lib/credentials.mjs',
   'scripts/doctor.mjs',
 ];
 const FACTORY_ONLY_DIRS = ['.opencode'];
@@ -110,6 +121,35 @@ async function main() {
   });
 
   console.log(`\n✓ Proyecto creado y publicado: ${repoUrl}`);
+
+  if (options.deploy) {
+    const credentials = loadCloudflareCredentials();
+    const dir = options.dir;
+
+    console.log('→ Creando proyecto de Cloudflare Pages');
+    await ensurePagesProject(options.pagesProject, credentials);
+
+    console.log('→ Desplegando el primer build');
+    deployDirectory(path.join(dir, 'dist/app/browser'), options.pagesProject, credentials);
+
+    if (options.domain) {
+      console.log(`→ Enganchando el dominio ${options.domain}`);
+      const domain = await attachDomain(options.pagesProject, options.domain, credentials);
+      console.log(
+        domain.status === 'exists'
+          ? '  (el dominio ya estaba enganchado)'
+          : '  dominio enganchado',
+      );
+    }
+
+    console.log('→ Guardando los secretos de Cloudflare en el repositorio');
+    setRepoSecrets(`${options.owner}/${options.repoName}`, credentials);
+
+    console.log(`\n✓ Desplegado: https://${options.domain ?? `${options.pagesProject}.pages.dev`}`);
+  } else if (options.deploySkipped) {
+    console.log('\n! Despliegue omitido; el proyecto quedó solo en GitHub.');
+  }
+
   printNextSteps(options, repoUrl);
 }
 
@@ -148,6 +188,27 @@ function buildOptions(args) {
     );
   }
 
+  const skipBuild = Boolean(args['skip-build']);
+  const credentials = loadCloudflareCredentials();
+  const deployRequested = Boolean(args.deploy);
+  const deploy =
+    !noGithub &&
+    !skipBuild &&
+    !args['no-deploy'] &&
+    (deployRequested || credentials.configured);
+
+  if (deploy && !credentials.configured) {
+    throw new Error(
+      'Para desplegar hace falta el token de Cloudflare en ~/.config/lakuspide/cloudflare.env ' +
+        'o usa --no-deploy.',
+    );
+  }
+
+  const pagesProject = String(args['pages-project'] ?? slug).trim();
+  if (!/^[a-z0-9][a-z0-9-]{1,62}$/.test(pagesProject)) {
+    throw new Error(`Nombre de proyecto de Pages no válido: ${pagesProject}`);
+  }
+
   const options = {
     name,
     slug,
@@ -165,9 +226,12 @@ function buildOptions(args) {
     visibility: args.public ? 'public' : 'private',
     noGithub,
     dryRun: Boolean(args['dry-run']),
-    skipBuild: Boolean(args['skip-build']),
+    skipBuild,
     allowDirty: Boolean(args['allow-dirty']),
     templateRef: String(args['template-ref'] ?? 'HEAD'),
+    deploy,
+    deploySkipped: !deploy && (deployRequested || credentials.configured),
+    pagesProject,
   };
 
   if (!noGithub) {
@@ -216,6 +280,15 @@ function printPlan(options) {
   console.log(`  Preset        ${options.preset} (aplicado; DEMO_MODE = false)`);
   console.log(`  Dominio       ${options.domain ?? '(sin dominio todavía)'}`);
   console.log(`  Build         ${options.skipBuild ? 'omitido' : 'npm install + npm run build'}`);
+  console.log(
+    `  Despliegue    ${
+      options.deploy
+        ? `Cloudflare Pages → ${options.pagesProject}${options.domain ? ` (${options.domain})` : ''}`
+        : options.deploySkipped
+          ? 'omitido (sin credenciales, --no-deploy o --skip-build)'
+          : 'no (sin GitHub)'
+    }`,
+  );
 }
 
 function ensureTargetIsFree(dir) {
@@ -322,7 +395,12 @@ function applyBranding(options, templateCommit) {
   pkg.description = options.description;
   delete pkg.scripts.new;
   delete pkg.scripts['repo:doctor'];
+  delete pkg.scripts.deploy;
   fs.writeFileSync(packageFile, `${JSON.stringify(pkg, null, 2)}\n`);
+
+  if (options.deploy) {
+    writeDeployWorkflow(options);
+  }
 
   for (const file of [...TEMPLATE_ONLY_FILES, ...FACTORY_ONLY_FILES, 'README.md']) {
     fs.rmSync(path.join(dir, file), { force: true });
@@ -359,6 +437,54 @@ function applyBranding(options, templateCommit) {
       null,
       2,
     )}\n`,
+  );
+}
+
+function writeDeployWorkflow(options) {
+  const dir = options.dir;
+  const workflowFile = path.join(dir, '.github/workflows/deploy.yml');
+  fs.mkdirSync(path.dirname(workflowFile), { recursive: true });
+  fs.writeFileSync(
+    workflowFile,
+    `name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: \${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: \${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      PAGES_PROJECT: ${options.pagesProject}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test -- --watch=false
+      - run: npm run build
+      - name: Deploy to Cloudflare Pages
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: \${{ env.CLOUDFLARE_API_TOKEN }}
+          accountId: \${{ env.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist/app/browser --project-name=\${{ env.PAGES_PROJECT }} --branch=main
+`,
   );
 }
 
@@ -400,7 +526,7 @@ function printNextSteps(options, repoUrl) {
   }
   console.log('  npm run dev');
   if (options.domain) {
-    console.log(`  # cuando toque desplegar: ${options.domain}`);
+    console.log(`  Web:   https://${options.domain}`);
   }
 }
 
@@ -460,6 +586,9 @@ Opciones:
   --dir <ruta>            Carpeta destino (por defecto ~/proyectos/<slug>)
   --public                Repo público (por defecto privado)
   --no-github             Solo crea el proyecto local, sin repo remoto
+  --pages-project <n>     Nombre del proyecto de Cloudflare Pages (por defecto, el slug)
+  --deploy                Fuerza el despliegue (por defecto, si hay credenciales)
+  --no-deploy             No crea Pages ni despliega
   --skip-build            Omite npm install + build (solo sincroniza el lockfile)
   --allow-dirty           Permite generar desde una plantilla con cambios sin commitear
   --template-ref <ref>    Commit/tag de la plantilla (por defecto HEAD)
