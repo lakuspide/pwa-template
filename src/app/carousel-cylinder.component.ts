@@ -154,14 +154,14 @@ const ITEMS_PER_PAGE = 16;
                      capped and centered on tablets and desktops. -->
                 <div class="flex flex-wrap justify-center gap-2 pb-24 w-full max-w-5xl mx-auto">
                   @for (item of page; track item.id) {
-                    <div class="bg-[var(--text-main)]/5 border border-[var(--border-main)] rounded-xl p-2 flex flex-col items-center cursor-pointer hover:bg-[var(--text-main)]/10 transition-colors active:scale-95 min-w-0 grow-0 shrink-0 basis-[calc(50%_-_0.25rem)] md:basis-[calc(25%_-_0.375rem)]"
+                    <div class="bg-[var(--text-main)]/5 border border-[var(--border-main)]/70 rounded-xl p-2 flex flex-col items-center cursor-pointer hover:bg-[var(--text-main)]/10 transition-colors active:scale-95 min-w-0 grow-0 shrink-0 basis-[calc(50%_-_0.25rem)] md:basis-[calc(25%_-_0.375rem)]"
                          role="button"
                          tabindex="0"
                          [attr.data-catalog-item]="item.id"
                          [attr.aria-label]="'Abrir ' + item.title"
                          (click)="onCardSelect(item)"
                          (keydown.enter)="onCardSelect(item)">
-                      <div class="w-full aspect-[4/3] bg-[var(--art-surface)] rounded-lg mb-1.5 overflow-hidden relative border border-[var(--art-border)]">
+                      <div class="w-full aspect-[4/3] bg-transparent rounded-lg mb-1.5 overflow-hidden relative border border-[var(--art-border)]">
                          <img [src]="item.image" [alt]="item.title" draggable="false" class="absolute inset-0 w-full h-full object-cover">
                       </div>
                       <span class="text-xs font-bold text-center text-[var(--text-sec)] line-clamp-2 leading-tight w-full">{{item.title}}</span>

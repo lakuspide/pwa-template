@@ -60,7 +60,7 @@ export interface DisplayCard {
                [style.pointer-events]="cardStyles()[i]?.opacity === 0 ? 'none' : 'auto'">
             
             <!-- Card -->
-            <div class="w-full h-full relative rounded-[24px] bg-[var(--art-surface)] border border-[var(--art-border)] flex flex-col items-center justify-end p-6 cursor-pointer overflow-hidden transition-all duration-500 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/50 shadow-2xl group/card"
+            <div class="w-full h-full relative rounded-[24px] bg-transparent border border-[var(--art-border)] flex flex-col items-center justify-end p-6 cursor-pointer overflow-hidden transition-all duration-500 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/50 shadow-2xl group/card"
                  role="button"
                  tabindex="0"
                  [attr.aria-label]="'Seleccionar ' + card.title"
@@ -80,9 +80,10 @@ export interface DisplayCard {
                 <img [src]="card.image" alt="" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 opacity-100"
                      [ngClass]="{'scale-110': cardStyles()[i]?.isFront, 'scale-100 opacity-65': !cardStyles()[i]?.isFront}"
                      referrerpolicy="no-referrer" />
-                <!-- Dark Gradient Overlay for text readability -->
-                <div class="absolute inset-0 bg-gradient-to-t from-[var(--art-surface)] via-[var(--art-surface)]/45 to-transparent transition-opacity duration-500"
-                     [ngClass]="{'opacity-90': !cardStyles()[i]?.isFront, 'opacity-100': cardStyles()[i]?.isFront}"></div>
+                <!-- Light translucent veil: keep the artwork visible while
+                     giving the text a little separation from the image. -->
+                <div class="absolute inset-0 bg-gradient-to-t from-black/35 via-black/10 to-transparent transition-opacity duration-500"
+                     [ngClass]="{'opacity-80': !cardStyles()[i]?.isFront, 'opacity-100': cardStyles()[i]?.isFront}"></div>
               }
 
               <!-- Sparkles / Fire effect container (Removed for wireframe) -->
