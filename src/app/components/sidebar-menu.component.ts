@@ -29,7 +29,7 @@ import { PanelId } from '../models/panel';
            aria-label="Cerrar navegación"></div>
 
       <!-- Sidebar content -->
-      <div class="relative w-80 max-w-[80vw] h-full bg-[var(--bg-surface)] border-r border-[var(--border-main)] shadow-2xl flex flex-col animate-slide-in-left"
+       <div class="relative w-80 max-w-[80vw] h-full bg-[var(--bg-surface)]/85 backdrop-blur-xl border-r border-[var(--border-main)] shadow-2xl flex flex-col animate-slide-in-left"
            role="dialog"
            aria-modal="true"
            aria-label="Navegación">
@@ -59,7 +59,7 @@ import { PanelId } from '../models/panel';
               </div>
 
               @if (authService.currentUser()?.role === 'user') {
-                <div class="flex items-center justify-between bg-black/50 rounded-xl p-3 border border-[var(--border-main)]">
+                <div class="flex items-center justify-between bg-black/25 backdrop-blur-md rounded-xl p-3 border border-[var(--border-main)]">
                   <span class="text-[var(--text-main)]/60 text-sm">Puntos</span>
                   <span class="text-[var(--text-muted)] font-mono font-bold">{{ authService.currentUser()?.points }} pts</span>
                 </div>

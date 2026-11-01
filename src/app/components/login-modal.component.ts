@@ -17,7 +17,7 @@ import { IconComponent } from '../shared/icon.component';
            tabindex="0"
            aria-label="Cerrar el inicio de sesión"></div>
       
-      <div class="relative w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto touch-pan-y custom-scrollbar bg-[var(--bg-surface)] border border-[var(--border-main)] rounded-[2rem] p-8 shadow-2xl flex flex-col animate-fade-in"
+       <div class="relative w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto touch-pan-y custom-scrollbar bg-[var(--bg-surface)]/65 backdrop-blur-xl border border-[var(--border-main)] rounded-[2rem] p-8 shadow-2xl flex flex-col animate-fade-in"
            role="dialog"
            aria-modal="true"
            aria-label="Inicio de sesión">
@@ -31,7 +31,7 @@ import { IconComponent } from '../shared/icon.component';
         <p class="text-[var(--text-dim)] mb-8 text-sm">Elige un perfil de prueba para ver cómo cambia la interfaz según el rol.</p>
         
         <div class="flex flex-col gap-3">
-          <button (click)="login.emit({email: 'client@example.com', role: 'user'})" class="flex items-center gap-4 p-4 rounded-xl bg-[var(--bg-hover)]/50 hover:bg-[var(--border-main)] border border-[var(--border-main)] hover:border-[var(--border-light)] transition-all text-left group">
+          <button (click)="login.emit({email: 'client@example.com', role: 'user'})" class="flex items-center gap-4 p-4 rounded-xl bg-[var(--bg-hover)]/30 backdrop-blur-md hover:bg-[var(--border-main)] border border-[var(--border-main)] hover:border-[var(--border-light)] transition-all text-left group">
             <div class="w-10 h-10 rounded-full bg-[var(--border-main)] flex items-center justify-center text-[var(--text-sec)] group-hover:scale-110 transition-transform">
               <mat-icon>person</mat-icon>
             </div>
@@ -41,7 +41,7 @@ import { IconComponent } from '../shared/icon.component';
             </div>
           </button>
           
-          <button (click)="login.emit({email: 'operator@example.com', role: 'operator'})" class="flex items-center gap-4 p-4 rounded-xl bg-[var(--bg-hover)]/50 hover:bg-[var(--border-main)] border border-[var(--border-main)] hover:border-[var(--border-light)] transition-all text-left group">
+          <button (click)="login.emit({email: 'operator@example.com', role: 'operator'})" class="flex items-center gap-4 p-4 rounded-xl bg-[var(--bg-hover)]/30 backdrop-blur-md hover:bg-[var(--border-main)] border border-[var(--border-main)] hover:border-[var(--border-light)] transition-all text-left group">
             <div class="w-10 h-10 rounded-full bg-[var(--border-main)] flex items-center justify-center text-[var(--text-sec)] group-hover:scale-110 transition-transform">
               <mat-icon>build</mat-icon>
             </div>
@@ -51,7 +51,7 @@ import { IconComponent } from '../shared/icon.component';
             </div>
           </button>
           
-          <button (click)="login.emit({email: 'manager@example.com', role: 'manager'})" class="flex items-center gap-4 p-4 rounded-xl bg-[var(--bg-hover)]/50 hover:bg-[var(--border-main)] border border-[var(--border-main)] hover:border-[var(--border-light)] transition-all text-left group">
+          <button (click)="login.emit({email: 'manager@example.com', role: 'manager'})" class="flex items-center gap-4 p-4 rounded-xl bg-[var(--bg-hover)]/30 backdrop-blur-md hover:bg-[var(--border-main)] border border-[var(--border-main)] hover:border-[var(--border-light)] transition-all text-left group">
             <div class="w-10 h-10 rounded-full bg-[var(--border-main)] flex items-center justify-center text-[var(--text-sec)] group-hover:scale-110 transition-transform">
               <mat-icon>supervisor_account</mat-icon>
             </div>
@@ -61,7 +61,7 @@ import { IconComponent } from '../shared/icon.component';
             </div>
           </button>
           
-          <button (click)="login.emit({email: 'admin@example.com', role: 'admin'})" class="flex items-center gap-4 p-4 rounded-xl bg-[var(--bg-hover)]/50 hover:bg-[var(--border-main)] border border-[var(--border-main)] hover:border-[var(--border-light)] transition-all text-left group">
+          <button (click)="login.emit({email: 'admin@example.com', role: 'admin'})" class="flex items-center gap-4 p-4 rounded-xl bg-[var(--bg-hover)]/30 backdrop-blur-md hover:bg-[var(--border-main)] border border-[var(--border-main)] hover:border-[var(--border-light)] transition-all text-left group">
             <div class="w-10 h-10 rounded-full bg-[var(--border-main)] flex items-center justify-center text-[var(--text-sec)] group-hover:scale-110 transition-transform">
               <mat-icon>admin_panel_settings</mat-icon>
             </div>

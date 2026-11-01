@@ -43,9 +43,9 @@ import { SiteService } from '../services/site.service';
               @for (item of cartService.items(); track item.id) {
                 <div class="relative flex items-center p-4 rounded-2xl border border-[var(--border-main)] overflow-hidden min-h-[120px]">
                   <!-- Background Image with Gradient Overlay -->
-                  <div class="absolute inset-0 w-full h-full bg-black">
-                    <img [src]="item.image" class="absolute inset-0 w-full h-full object-cover opacity-50" alt="" referrerpolicy="no-referrer">
-                    <div class="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-black/90"></div>
+                  <div class="absolute inset-0 w-full h-full bg-transparent">
+                    <img [src]="item.image" class="absolute inset-0 w-full h-full object-cover opacity-85" alt="" referrerpolicy="no-referrer">
+                    <div class="absolute inset-0 bg-gradient-to-r from-black/55 via-black/15 to-black/35"></div>
                   </div>
                   
                   <!-- Content -->
@@ -55,7 +55,7 @@ import { SiteService } from '../services/site.service';
                   </div>
                   
                   <!-- Counter -->
-                  <div class="relative z-10 flex flex-col items-center gap-2 bg-black/60 backdrop-blur-md p-3 rounded-xl border border-[var(--border-main)] min-w-[80px]">
+                  <div class="relative z-10 flex flex-col items-center gap-2 bg-black/30 backdrop-blur-md p-3 rounded-xl border border-[var(--border-main)] min-w-[80px]">
                     <div class="flex items-center gap-2">
                       <button (click)="cartService.updateQuantity(item.id, 1)" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-[var(--art-text)] hover:bg-white/20 transition-colors" [disabled]="isConfirming()">
                         <mat-icon class="text-sm">add</mat-icon>
@@ -74,7 +74,7 @@ import { SiteService } from '../services/site.service';
           <!-- Remove Confirmation Modal -->
           @if (itemToRemove()) {
             <div class="absolute inset-0 z-[3000] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fade-in pointer-events-auto">
-              <div class="bg-[var(--bg-surface)] border border-[var(--border-main)] rounded-3xl p-8 max-w-sm w-[90%] mx-auto flex flex-col items-center text-center shadow-2xl animate-scale-in">
+              <div class="bg-[var(--bg-surface)]/65 backdrop-blur-xl border border-[var(--border-main)] rounded-3xl p-8 max-w-sm w-[90%] mx-auto flex flex-col items-center text-center shadow-2xl animate-scale-in">
                 <div class="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center mb-6">
                   <mat-icon class="text-red-400 text-3xl !w-8 !h-8">delete_outline</mat-icon>
                 </div>
@@ -125,7 +125,7 @@ import { SiteService } from '../services/site.service';
           </div>
         } @else {
           <!-- Success State / Tracker -->
-          <div class="absolute inset-0 flex flex-col animate-fade-in z-10 bg-[var(--bg-surface)] overflow-y-auto touch-pan-y custom-scrollbar p-8">
+          <div class="absolute inset-0 flex flex-col animate-fade-in z-10 bg-[var(--bg-surface)]/82 backdrop-blur-xl overflow-y-auto touch-pan-y custom-scrollbar p-8">
             <button (click)="closeModal.emit()"
                     aria-label="Cerrar la confirmación del pedido"
                     class="self-end w-12 h-12 rounded-full bg-[var(--text-main)]/5 flex items-center justify-center text-[var(--text-main)] hover:bg-[var(--text-main)]/20 transition-colors">
@@ -143,7 +143,7 @@ import { SiteService } from '../services/site.service';
             </div>
 
             <!-- Progress -->
-            <div class="bg-[var(--bg-hover)]/50 rounded-[2rem] p-8 border border-[var(--border-main)] mb-8">
+            <div class="bg-[var(--bg-hover)]/30 backdrop-blur-md rounded-[2rem] p-8 border border-[var(--border-main)] mb-8">
               <div class="flex justify-between items-center mb-8 relative">
                 <!-- Progress Line -->
                 <div class="absolute top-1/2 left-0 w-full h-1 bg-[var(--border-main)] -translate-y-1/2 z-0"></div>
@@ -185,7 +185,7 @@ import { SiteService } from '../services/site.service';
               </div>
               
               <div class="space-y-4">
-                <div class="bg-[var(--bg-hover)]/50 p-5 rounded-2xl border border-[var(--border-main)] relative overflow-hidden group">
+                <div class="bg-[var(--bg-hover)]/30 backdrop-blur-md p-5 rounded-2xl border border-[var(--border-main)] relative overflow-hidden group">
                   <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                     <mat-icon class="text-4xl text-[var(--text-muted)]">format_quote</mat-icon>
                   </div>
@@ -200,7 +200,7 @@ import { SiteService } from '../services/site.service';
                   <p class="text-[var(--text-dim)] text-[10px] font-bold">— Usuaria A</p>
                 </div>
 
-                <div class="bg-[var(--bg-hover)]/50 p-5 rounded-2xl border border-[var(--border-main)] relative overflow-hidden group">
+                <div class="bg-[var(--bg-hover)]/30 backdrop-blur-md p-5 rounded-2xl border border-[var(--border-main)] relative overflow-hidden group">
                   <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                     <mat-icon class="text-4xl text-[var(--text-muted)]">format_quote</mat-icon>
                   </div>
@@ -230,14 +230,14 @@ import { SiteService } from '../services/site.service';
                 </button>
               </div>
             } @else {
-              <div class="bg-[var(--bg-hover)]/50 p-6 rounded-[2rem] border border-[var(--border-main)] text-center mb-10">
+              <div class="bg-[var(--bg-hover)]/30 backdrop-blur-md p-6 rounded-[2rem] border border-[var(--border-main)] text-center mb-10">
                 <mat-icon class="text-[var(--text-muted)] text-3xl mb-2">check_circle</mat-icon>
                 <p class="text-[var(--text-main)] font-bold">Pedido guardado en tu cuenta</p>
                 <p class="text-[var(--text-dim)] text-xs mt-1">Puedes encontrarlo en tu historial de pedidos, en el menú lateral.</p>
               </div>
             }
             } @else {
-              <div class="bg-[var(--bg-hover)]/50 p-6 rounded-[2rem] border border-[var(--border-main)] text-center mb-10">
+              <div class="bg-[var(--bg-hover)]/30 backdrop-blur-md p-6 rounded-[2rem] border border-[var(--border-main)] text-center mb-10">
                 <mat-icon class="text-[var(--text-muted)] text-3xl mb-2">receipt_long</mat-icon>
                 <p class="text-[var(--text-main)] font-bold">No hace falta cuenta</p>
                 <p class="text-[var(--text-dim)] text-xs mt-1">Guarda la referencia del pedido por si necesitas contactarnos.</p>

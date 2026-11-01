@@ -46,7 +46,7 @@ import { PricePipe } from '../shared/price.pipe';
       
       <!-- Details Area (Pushed to bottom) -->
       <div class="flex-1 flex flex-col justify-end p-4 relative z-20 animate-slide-up pb-6">
-        <div class="bg-[var(--bg-surface)]/80 backdrop-blur-md rounded-[24px] p-5 border border-[var(--border-main)] shadow-2xl">
+         <div class="bg-[var(--bg-surface)]/55 backdrop-blur-xl rounded-[24px] p-5 border border-[var(--border-main)] shadow-2xl">
           <div class="flex justify-between items-start mb-1 gap-2">
             <h2 class="font-montserrat font-black text-xl text-[var(--text-main)] leading-tight drop-shadow-lg">{{ product()?.name }}</h2>
             @if (showPrice()) {
