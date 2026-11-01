@@ -12,9 +12,6 @@
       <path d="M40 0H0V40" fill="none" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
     </pattern>
   </defs>
-  <rect width="800" height="800" fill="url(#bg)"/>
-  <rect width="800" height="800" fill="url(#grid)"/>
-  <rect width="800" height="800" fill="url(#glow)"/>
   <!-- Inset the drawing so the tall card crop (and its 1.1 zoom) keeps every stroke inside the frame. -->
   <g class="art-frame" transform="translate(400 400) scale(0.9) translate(-400 -400)">
   <g fill="none" stroke="#f4f0e8" stroke-opacity="0.9" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
