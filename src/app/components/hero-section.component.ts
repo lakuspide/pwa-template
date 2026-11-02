@@ -14,15 +14,12 @@ import { SiteService } from '../services/site.service';
   imports: [CommonModule, IconComponent],
   template: `
     <section
-      class="absolute inset-0 w-full h-[100dvh] flex flex-col items-center justify-center overflow-hidden z-[50] transition-transform duration-1000 ease-in-out bg-[var(--bg-main)]"
+      class="absolute inset-0 w-full h-[100dvh] flex flex-col items-center justify-center overflow-hidden z-[50] transition-transform duration-1000 ease-in-out bg-transparent"
       [class.-translate-y-full]="appMode() === 'catalog'"
       [attr.inert]="appMode() === 'catalog' ? '' : null"
       [attr.aria-hidden]="appMode() === 'catalog' ? 'true' : null"
       (touchstart)="heroTouchStart.emit($event)"
       (touchend)="heroTouchEnd.emit($event)">
-
-      <!-- Wireframe background pattern -->
-      <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 20px 20px;"></div>
 
       <!-- Content -->
       <div class="relative z-10 flex flex-col items-center text-center px-6 mt-12">

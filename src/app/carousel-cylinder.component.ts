@@ -30,12 +30,11 @@ const ITEMS_PER_PAGE = 16;
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, IconComponent, ProductModalComponent, CheckoutDrawerComponent, SidebarMenuComponent, LoginModalComponent, LocationsSectionComponent, TermsSectionComponent, HistorySectionComponent, TopHeaderComponent, HeroSectionComponent, Carousel3dComponent, SectorSwitcherComponent],
   template: `
-    <div class="w-full min-h-screen bg-[var(--bg-main)] text-[var(--text-sec)] font-sans overflow-x-hidden relative">
+    <div class="w-full min-h-screen bg-transparent text-[var(--text-sec)] font-sans overflow-x-hidden relative">
       
-      <!-- Fixed Background Image (Wireframe) -->
-      <div class="fixed inset-0 w-full h-full z-0 pointer-events-none bg-[var(--bg-main)]">
-        <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 20px 20px;"></div>
-        <div class="absolute inset-0 bg-gradient-to-b from-[var(--bg-main)]/80 via-transparent to-[var(--bg-main)]/90"></div>
+      <!-- Shared background: keep the photograph visible behind every surface. -->
+      <div class="fixed inset-0 w-full h-full z-0 pointer-events-none">
+        <img src="images/waterfall-background.jpg" alt="" class="w-full h-full object-cover" aria-hidden="true">
       </div>
 
       <!-- HERO SECTION -->
@@ -52,9 +51,6 @@ const ITEMS_PER_PAGE = 16;
                [class.pointer-events-none]="appMode() !== 'catalog'"
                [attr.inert]="appMode() !== 'catalog' ? '' : null"
                [attr.aria-hidden]="appMode() !== 'catalog' ? 'true' : null">
-        
-        <!-- Sensory Glow -->
-        <div class="catalog-glow absolute inset-0 pointer-events-none z-0"></div>
         
         <!-- FIXED TOP HEADER -->
         <div class="flex-none w-full pt-safe z-[200]">
