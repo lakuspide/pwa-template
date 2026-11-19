@@ -141,7 +141,12 @@ export async function ensureCname(domain, target, credentials) {
 }
 
 /** Uploads `dist/app/browser` to the project. */
-export function deployDirectory(directory, projectName, credentials) {
+export function deployDirectory(
+  directory,
+  projectName,
+  credentials,
+  cwd = process.cwd(),
+) {
   const creds = credentials ?? loadCloudflareCredentials();
   const result = spawnSync(
     'npx',
@@ -155,6 +160,7 @@ export function deployDirectory(directory, projectName, credentials) {
       '--branch=main',
     ],
     {
+      cwd,
       stdio: 'inherit',
       env: {
         ...process.env,

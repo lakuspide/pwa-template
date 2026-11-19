@@ -130,7 +130,12 @@ async function main() {
     await ensurePagesProject(options.pagesProject, credentials);
 
     console.log('→ Desplegando el primer build');
-    deployDirectory(path.join(dir, 'dist/app/browser'), options.pagesProject, credentials);
+    deployDirectory(
+      path.join(dir, 'dist/app/browser'),
+      options.pagesProject,
+      credentials,
+      dir,
+    );
 
     if (options.domain) {
       console.log(`→ Enganchando el dominio ${options.domain}`);
