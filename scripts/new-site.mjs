@@ -653,6 +653,12 @@ function replaceRequired(file, pattern, replacement) {
   const before = read(file);
   const after = before.replace(pattern, replacement);
   if (after === before) {
+    // A replacement that leaves the file identical is fine (for example
+    // `--lang es` over a template that is already in Spanish). Only a pattern
+    // that does not match at all is an error.
+    if (pattern.test(before)) {
+      return;
+    }
     throw new Error(`No se pudo actualizar ${path.relative(TEMPLATE_ROOT, file)}`);
   }
   fs.writeFileSync(file, after);
