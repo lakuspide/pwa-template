@@ -81,3 +81,70 @@ Presets disponibles: `boutique`, `menu`, `showcase`, `services`, `real-estate`,
 - `docs/PRESETS.md`: motor de presets, flags y cómo añadir un sector.
 - `README.md`: arranque, presets y estructura.
 - `ARQUITECTURA.md`, `INTEGRATION.md`, `ROADMAP.md`: diseño y siguientes pasos.
+
+## Sitio de captación multiidioma (receta Pauronexpress)
+
+Cuando el encargo no es un catálogo sino captar presupuestos, el carrusel sobra.
+Así se montó `pauronexpress` y así se repite:
+
+1. **La URL manda.** Un `LOCALES`/`PAGE_IDS`/`PATHS` en un único módulo
+   (`src/site/<marca>.ts`) genera las rutas del router, el conmutador de idioma,
+   el sitemap y la lista de prerender. El idioma y la página se deducen de la
+   URL (`localeFromUrl`, `pageFromUrl`), no de un signal que haya que sincronizar.
+2. **Barra final.** Cloudflare Pages sirve cada página como carpeta
+   (`/presupuesto/index.html`) y redirige `/presupuesto` → `/presupuesto/`. Si
+   canonical, hreflang y enlaces internos usan la forma sin barra, cada visita
+   arrastra un 308 y el canonical apunta a una URL que redirige. Genera siempre
+   `/${slug}/` y normaliza al comparar.
+3. **Head por ruta, también al prerenderizar.** Un `SeoService` que escribe
+   `title`, `description`, `canonical`, los cuatro `hreflang` y OG, invocado
+   desde `provideAppInitializer`. Sin él, las 18 páginas heredan el título de
+   `index.html`. Test: recorrer `dist/app/browser/**/index.html` y comprobar
+   canonical == URL del fichero y `<html lang>` correcto.
+4. **Hidratación.** `provideClientHydration(withEventReplay())`: sin esto
+   Angular tira el HTML prerenderizado y vuelve a renderizar (se ve en el
+   Lighthouse móvil y en el CLS).
+5. **Presupuesto de bundle.** La home importada directa y el resto con
+   `loadComponent`; el wizard es el único que necesita `@angular/forms`. En
+   Pauronexpress el inicial bajó de 519 kB a 387 kB.
+6. **El lead es el producto.** El mensaje de WhatsApp se construye con funciones
+   puras (`services/quote-message.ts`) fuera del componente: idioma de la web en
+   la primera línea, etiquetas traducidas, isla solo si aplica, y test por
+   idioma. La validación por paso vive en la misma función y se reutiliza antes
+   de enviar.
+7. **Copy sin afirmar lo que no está confirmado.** Todo el texto en un fichero
+   por idioma y un test de paridad (mismas opciones, mismas islas, mismas
+   secciones legales). Direcciones, tránsitos y fiscalidad se dejan fuera hasta
+   que el dueño los confirme.
+
+### Trampas que costaron tiempo
+
+- **`ngsw.json` con `index: /index.csr.html`.** Ese fichero debe estar en
+  `assets.files` de `ngsw-config.json`; si no, la navegación offline devuelve
+  504 aunque el resto de la caché esté bien.
+- **Contraste con rojo de marca.** Rojo puro sobre negro (#e8212b / #0b0b0d) da
+  4.38:1 y falla AA en textos pequeños. Separa relleno (`--accent`, blanco
+  encima) y tinta sobre oscuro (`--accent-ink`, aclarado); blancos al 30–45 % de
+  opacidad tampoco pasan, mínimo ~60 %.
+- **Logo con `aria-label`.** Si el enlace lleva `aria-label="Volver al inicio"`
+  pero el texto visible es «PAURONEXPRESS», axe marca
+  `label-content-name-mismatch`: el nombre accesible debe contener el texto
+  visible.
+- **`robots.txt` gestionado por Cloudflare.** Cloudflare inyecta su bloque
+  «Content-Signal» delante del fichero; Google lo ignora, pero Lighthouse lo
+  cuenta como directiva desconocida y baja SEO a 92. Se desactiva en el panel de
+  la zona, no desde el repo.
+- **Lighthouse local engaña.** Un `http-server` sin compresión da 60 donde el
+  dominio real da 86; mide siempre contra el despliegue.
+- **Playwright sin Chrome del sistema.** `--browser chromium` más
+  `LD_LIBRARY_PATH` a las libs descargadas; el canal `chrome` falla si no hay
+  `/opt/google/chrome/chrome`.
+
+### Cerrar la plantilla
+
+Si el proyecto no usa el catálogo, borra el demo entero: componentes del
+carrusel, `site/auth/cart/catalog/order`, `presets`, `site.config`, iconos
+Material y `public/images` de presets. Antes de borrar, comprueba alcance real
+con un script que siga los `import` desde `main.ts` (los `loadComponent` no
+aparecen como `from`, añádelos a mano). En Pauronexpress fueron 132 kB de JS y
+1,6 MB de assets menos.
