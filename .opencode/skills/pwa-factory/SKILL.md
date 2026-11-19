@@ -119,9 +119,17 @@ Así se montó `pauronexpress` y así se repite:
 
 ### Trampas que costaron tiempo
 
-- **`ngsw.json` con `index: /index.csr.html`.** Ese fichero debe estar en
-  `assets.files` de `ngsw-config.json`; si no, la navegación offline devuelve
-  504 aunque el resto de la caché esté bien.
+- **El shell offline en Cloudflare Pages.** Pages redirige `/index.html` a `/`
+  y `/index.csr.html` a `/index.csr`; la Cache API no guarda respuestas
+  redirigidas, así que el install de `ngsw` aborta y toda navegación offline da
+  504. Solución: un `postbuild` que copie el shell CSR a `/app-shell` (sin
+  extensión, `Content-Type: text/html` en `_headers`), apunte ahí `ngsw.json` y
+  falle si la lista de precache menciona un fichero inexistente.
+- **Nada que Cloudflare reescriba en el precache.** Si el zone añade contenido
+  (robots.txt gestionado) o minifica, el hash no cuadra y `ngsw` corta el
+  install justo ahí: los ficheros posteriores de la lista quedan sin cachear
+  (síntoma típico: la página offline sale sin estilos). Deja fuera `robots.txt`
+  y `sitemap.xml`, que offline no hacen falta.
 - **Contraste con rojo de marca.** Rojo puro sobre negro (#e8212b / #0b0b0d) da
   4.38:1 y falla AA en textos pequeños. Separa relleno (`--accent`, blanco
   encima) y tinta sobre oscuro (`--accent-ink`, aclarado); blancos al 30–45 % de
